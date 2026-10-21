@@ -8,10 +8,6 @@ import (
 
 type HealthHandler struct{}
 
-func NewHealthHandler() *HealthHandler {
-	return &HealthHandler{}
-}
-
 type healthResponse struct {
 	Status  string `json:"status"`
 	Version string `json:"version"`
@@ -32,6 +28,6 @@ func (h *HealthHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func (h *HealthHandler) S() string {
-	return "hola"
+func NewHealthHandler() *HealthHandler {
+	return &HealthHandler{}
 }

@@ -12,14 +12,6 @@ type responseRecorder struct {
 	written    bool
 }
 
-func newResponseRecorder(w http.ResponseWriter) *responseRecorder {
-	return &responseRecorder{
-		ResponseWriter: w,
-		statusCode:     http.StatusOK,
-		// written:        false,
-	}
-}
-
 func (rr *responseRecorder) WriteHeader(code int) {
 	if !rr.written {
 		rr.statusCode = code
@@ -34,6 +26,13 @@ func (rr *responseRecorder) Write(b []byte) (int, error) {
 	return rr.ResponseWriter.Write(b)
 }
 
+func newResponseRecorder(w http.ResponseWriter) *responseRecorder {
+	return &responseRecorder{
+		ResponseWriter: w,
+		statusCode:     http.StatusOK,
+		// written:        false,
+	}
+}
 func Logger(logger *slog.Logger) func(http.Handler) http.Handler {
 	return func(next http.Handler) http.Handler {
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {

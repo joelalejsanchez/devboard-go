@@ -14,17 +14,17 @@ func main() {
 	logger := slog.New(slog.NewJSONHandler(os.Stdout, &slog.HandlerOptions{
 		Level: slog.LevelInfo,
 	}))
-	server := server.New("localhost:8000")
+	svr := server.New("localhost:8000")
 
-	server.Use(middlewares.Recovery(logger))
-	server.Use(middlewares.Logger(logger))
+	svr.Use(middlewares.Recovery(logger))
+	svr.Use(middlewares.Logger(logger))
 
 	healthHandler := handlers.NewHealthHandler()
-	server.RegisterRoute("GET /1", healthHandler)
-	server.RegisterRoute("GET /2", healthHandler)
+	svr.RegisterRoute("GET /1", healthHandler)
+	svr.RegisterRoute("GET /2", healthHandler)
 
 	logger.Info("Iniciando", slog.String("addr", "http://localhost:8000"))
-	err := server.Start()
+	err := svr.Start()
 	if err != nil {
 		log.Fatalf("Error al iniciar el servidor: %v", err)
 	}

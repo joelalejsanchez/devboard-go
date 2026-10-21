@@ -18,7 +18,9 @@ func main() {
 	svr.Use(middlewares.Logger(lgr))
 
 	// Rutas
-	svr.RegisterRoute("GET /1", handlers.NewHealthHandler())
+	svr.RegisterRoute("GET /1", &handlers.HealthHandler{})
+	svr.RegisterRoute("GET /users/one", &handlers.GetUserHandler{})
+	svr.RegisterRoute("POST /users", &handlers.PostUserHandler{Logger: lgr})
 
 	if err := svr.Start(); err != nil {
 		lgr.Error("error fatal", "error", err)

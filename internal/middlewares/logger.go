@@ -22,6 +22,7 @@ func (rr *responseRecorder) WriteHeader(code int) {
 func (rr *responseRecorder) Write(b []byte) (int, error) {
 	if !rr.written {
 		rr.WriteHeader(http.StatusOK)
+		rr.written = true
 	}
 	return rr.ResponseWriter.Write(b)
 }

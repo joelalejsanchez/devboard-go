@@ -4,19 +4,19 @@ package handlers
  * Pruebas propias
  */
 import (
+	"devboard/internal/usecases"
 	"encoding/json"
 	"log/slog"
 	"net/http"
 )
 
-type User struct {
-	Name     string `json:"name"`
-	Lastname string `json:"lastname"`
-}
 type GetUserHandler struct{}
 
 func (h *GetUserHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
-	user := User{"joel", "sanchez"}
+	user := usecases.User{
+		Name:     "joel",
+		Lastname: "sanchez",
+	}
 	data, err := json.Marshal(user)
 	if err != nil {
 		return
@@ -31,11 +31,12 @@ type PostUserHandler struct {
 }
 
 func (h *PostUserHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
-	var user User
-	err := json.NewDecoder(r.Body).Decode(&user)
+	var user usecases.User
+	decoder := json.NewDecoder(r.Body)
+	decoder.DisallowUnknownFields()
+	err := decoder.Decode(&user)
 	if err != nil {
-		h.Logger.Error("error al decodificar body", "err", err)
-		w.WriteHeader(http.StatusBadRequest)
+		http.Error(w, "json invalido", http.StatusBadRequest)
 		return
 	}
 	w.Header().Set("Content-Type", "application/text")

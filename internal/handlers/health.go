@@ -1,8 +1,9 @@
-package handler
+package handlers
 
 import (
 	"encoding/json"
 	"net/http"
+	"time"
 )
 
 type HealthHandler struct{}
@@ -17,6 +18,7 @@ type healthResponse struct {
 }
 
 func (h *HealthHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+	time.Sleep(time.Millisecond * 200)
 	res := healthResponse{
 		Status:  "ok",
 		Version: "1.0.0",

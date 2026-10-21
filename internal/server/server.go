@@ -35,3 +35,7 @@ func (s *Server) Start() error {
 func (s *Server) RegisterRoute(pattern string, h http.Handler) {
 	s.mux.Handle(pattern, h)
 }
+
+func (s *Server) Use(middleware func(http.Handler) http.Handler) {
+	s.httpServer.Handler = middleware(s.httpServer.Handler)
+}

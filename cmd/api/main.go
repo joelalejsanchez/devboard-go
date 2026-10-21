@@ -1,8 +1,7 @@
 package main
 
 import (
-	"log"
-	"log/slog"
+	"os"
 
 	"devboard/internal/handlers"
 	"devboard/internal/loggers"
@@ -12,19 +11,18 @@ import (
 
 func main() {
 	lgr := loggers.New(loggers.DefaultConfig())
-	svr := server.New("localhost:8000")
+	svr := server.New("localhost:8000", lgr)
 
+	// Middlewares
 	svr.Use(middlewares.Recovery(lgr))
 	svr.Use(middlewares.Logger(lgr))
 
-	healthHandler := handlers.NewHealthHandler()
-	svr.RegisterRoute("GET /1", healthHandler)
-	svr.RegisterRoute("GET /2", healthHandler)
+	// Rutas
+	svr.RegisterRoute("GET /1", handlers.NewHealthHandler())
 
-	lgr.Info("Iniciando", slog.String("addr", "http://localhost:8000"))
-	err := svr.Start()
-	if err != nil {
-		log.Fatalf("Error al iniciar el servidor: %v", err)
+	if err := svr.Start(); err != nil {
+		lgr.Error("error fatal", "error", err)
+		os.Exit(1)
 	}
 
 }

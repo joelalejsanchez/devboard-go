@@ -36,6 +36,10 @@ func (s *Server) RegisterRoute(pattern string, h http.Handler) {
 	s.mux.Handle(pattern, h)
 }
 
+func (s *Server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+	s.mux.ServeHTTP(w, r)
+}
+
 func (s *Server) Use(middleware func(http.Handler) http.Handler) {
 	s.httpServer.Handler = middleware(s.httpServer.Handler)
 }

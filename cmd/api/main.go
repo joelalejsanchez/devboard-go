@@ -16,6 +16,7 @@ func main() {
 	}))
 	server := server.New("localhost:8000")
 
+	server.Use(middlewares.Recovery(logger))
 	server.Use(middlewares.Logger(logger))
 
 	healthHandler := handlers.NewHealthHandler()

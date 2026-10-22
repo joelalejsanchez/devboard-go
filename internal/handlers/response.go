@@ -79,28 +79,27 @@ func RespondError(w http.ResponseWriter, r *http.Request, l *slog.Logger, err er
 	w.WriteHeader(problem.Status)
 	jsonErr := json.NewEncoder(w).Encode(problem)
 	if jsonErr != nil {
-		http.Error(w, domain.ErrInternal.Error(), http.StatusInternalServerError)
+		l.Error("error al escribir problem details",
+			slog.String("error", jsonErr.Error()),
+		)
 	}
 }
 
 // RespondValidationError responde errores de validacion
-func RespondValidationError(w http.ResponseWriter, errs []validator.ValidationError) {
-	respondJSON(w, http.StatusBadRequest, errorResponse{
+func RespondValidationError(w http.ResponseWriter, errs []validator.ValidationError) error {
+	return respondJSON(w, http.StatusBadRequest, errorResponse{
 		Error:   "datos de entrada invalidos",
 		Details: errs,
 	})
 }
 
 // ResponseJSON envia una respuesta exitosa en JSON
-func ResponseJSON(w http.ResponseWriter, status int, data any) {
-	respondJSON(w, status, data)
+func ResponseJSON(w http.ResponseWriter, status int, data any) error {
+	return respondJSON(w, status, data)
 }
 
-func respondJSON(w http.ResponseWriter, status int, data any) {
+func respondJSON(w http.ResponseWriter, status int, data any) error {
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(status)
-	err := json.NewEncoder(w).Encode(data)
-	if err != nil {
-		http.Error(w, domain.ErrInternal.Error(), http.StatusInternalServerError)
-	}
+	return json.NewEncoder(w).Encode(data)
 }

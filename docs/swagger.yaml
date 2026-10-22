@@ -1,0 +1,31 @@
+basePath: /api/v1
+definitions:
+  handlers.healthResponse:
+    properties:
+      status:
+        type: string
+      version:
+        type: string
+    type: object
+host: localhost:8000
+info:
+  contact:
+    name: Soporte Devboard Joel
+  description: API REST para gestión de proyectos
+  title: DEVBOARD API
+  version: "0.1"
+paths:
+  /health:
+    get:
+      description: Verifica que el servidor este ejecutandose y respondiendo
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/handlers.healthResponse'
+      summary: Health check
+      tags:
+      - system
+swagger: "2.0"

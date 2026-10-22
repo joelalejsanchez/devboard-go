@@ -18,6 +18,10 @@ build:
 test:
 	go test -race -cover ./...
 
+## format: formatea el codigo
+format:
+	go fmt ./...
+
 ## lint: analizar el código con golangci-lint
 lint:
 	golangci-lint run ./...

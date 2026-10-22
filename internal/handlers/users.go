@@ -4,7 +4,7 @@ package handlers
  * Pruebas propias
  */
 import (
-	"devboard/internal/usecases"
+	"devboard/internal/domain"
 	"encoding/json"
 	"log/slog"
 	"net/http"
@@ -13,7 +13,7 @@ import (
 type GetUserHandler struct{}
 
 func (h *GetUserHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
-	user := usecases.User{
+	user := domain.User{
 		Name:     "joel",
 		Lastname: "sanchez",
 	}
@@ -31,7 +31,7 @@ type PostUserHandler struct {
 }
 
 func (h *PostUserHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
-	var user usecases.User
+	var user domain.User
 	decoder := json.NewDecoder(r.Body)
 	decoder.DisallowUnknownFields()
 	err := decoder.Decode(&user)

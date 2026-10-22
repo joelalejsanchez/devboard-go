@@ -30,7 +30,11 @@ func (v *Validator) Validate(s interface{}) []ValidationError {
 	}
 
 	var errors []ValidationError
-	for _, e := range err.(validator.ValidationErrors) { // Asercion
+	validationErrors, ok := err.(validator.ValidationErrors) // Asercion
+	if !ok {
+		return nil
+	}
+	for _, e := range validationErrors {
 		errors = append(errors, ValidationError{
 			Field:   strings.ToLower(e.Field()),
 			Message: translateTag(e),

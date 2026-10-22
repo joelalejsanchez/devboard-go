@@ -21,7 +21,10 @@ import (
 // @BasePath /api/v1
 func main() {
 	lgr := loggers.New(loggers.DefaultConfig())
-	svr := server.New("localhost:8000", lgr)
+	svr := server.New(
+		"localhost:8000",
+		server.WithLogger(lgr),
+	)
 
 	// Middlewares
 	svr.Use(middlewares.Recovery(lgr))

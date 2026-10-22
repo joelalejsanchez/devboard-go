@@ -23,7 +23,10 @@ func (h *GetUserHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	}
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
-	w.Write(data)
+	_, err = w.Write(data)
+	if err != nil {
+		return
+	}
 }
 
 type PostUserHandler struct {
@@ -41,7 +44,10 @@ func (h *PostUserHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	}
 	w.Header().Set("Content-Type", "application/text")
 	w.WriteHeader(http.StatusOK)
-	w.Write([]byte("ok"))
+	_, err = w.Write([]byte("ok"))
+	if err != nil {
+		return
+	}
 }
 
 func NewPostUserHandler() *PostUserHandler {

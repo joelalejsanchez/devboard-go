@@ -37,7 +37,6 @@ func (status *TaskStatus) UnmarshalJSON(data []byte) error {
 	}
 
 	taskStatus := TaskStatus(raw)
-	status.IsValid()
 	if !taskStatus.IsValid() {
 		return fmt.Errorf("estado invalido: %q", raw)
 	}

@@ -1,5 +1,5 @@
-// Package handlers - utilidades para errores
-package handlers
+// Package utils - utilidades para errores
+package utils
 
 import (
 	"devboard/internal/domain"

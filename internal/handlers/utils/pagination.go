@@ -1,5 +1,5 @@
-// Package handlers - utilidades de paginacion
-package handlers
+// Package utils - utilidades de paginacion
+package utils
 
 import (
 	"net/http"

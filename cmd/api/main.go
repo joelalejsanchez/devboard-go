@@ -30,6 +30,14 @@ func main() {
 	svr.Use(middlewares.Recovery(lgr))
 	svr.Use(middlewares.Logger(lgr))
 
+	/*
+		example := middlewares.Chain(
+			handler,
+			middlewares.Recovery(lgr),
+			middlewares.Logger(lgr),
+		)
+	*/
+
 	// Rutas
 	svr.RegisterRoute("GET /docs/", httpSwagger.WrapHandler)
 	svr.RegisterRoute("GET /1", &handlers.HealthHandler{})

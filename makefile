@@ -48,9 +48,13 @@ docker-up:
 	docker compose up -d
 
 ## docker-down: detener los servicios de desarrollo
-docker-down: 
+docker-down:
 	docker compose down
 
 ## docker-logs: ver logs de todos los servicios
 docker-logs:
 	docker compose logs -f
+
+## docs: documentacion swagger con swaggos
+docs:
+	swag init -g $(MAIN_PATH)/main.go -o docs

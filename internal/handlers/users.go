@@ -10,9 +10,11 @@ import (
 	"net/http"
 )
 
+// GetUserHandler struct
 type GetUserHandler struct{}
 
-func (h *GetUserHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+// ServeHTTP function
+func (h *GetUserHandler) ServeHTTP(w http.ResponseWriter, _ *http.Request) {
 	user := domain.User{
 		Name:     "joel",
 		Lastname: "sanchez",
@@ -29,10 +31,12 @@ func (h *GetUserHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+// PostUserHandler struct
 type PostUserHandler struct {
 	Logger *slog.Logger
 }
 
+// ServeHTTP function
 func (h *PostUserHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	var user domain.User
 	decoder := json.NewDecoder(r.Body)
@@ -50,9 +54,12 @@ func (h *PostUserHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+// NewPostUserHandler retorna PostUserHandler
 func NewPostUserHandler() *PostUserHandler {
 	return &PostUserHandler{}
 }
+
+// NewGetUserHandler retorna GetUserHandler
 func NewGetUserHandler() *GetUserHandler {
 	return &GetUserHandler{}
 }

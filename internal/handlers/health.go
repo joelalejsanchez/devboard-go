@@ -1,3 +1,4 @@
+// Package handlers - endpoints de health
 package handlers
 
 import (
@@ -6,6 +7,7 @@ import (
 	"time"
 )
 
+// HealthHandler struct
 type HealthHandler struct{}
 
 type healthResponse struct {
@@ -13,7 +15,8 @@ type healthResponse struct {
 	Version string `json:"version"`
 }
 
-func (h *HealthHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+// ServeHTTP function
+func (h *HealthHandler) ServeHTTP(w http.ResponseWriter, _ *http.Request) {
 	time.Sleep(time.Millisecond * 200)
 	res := healthResponse{
 		Status:  "ok",
@@ -28,6 +31,7 @@ func (h *HealthHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+// NewHealthHandler retorna HealthHandler
 func NewHealthHandler() *HealthHandler {
 	return &HealthHandler{}
 }

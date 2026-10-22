@@ -1,3 +1,4 @@
+// Package middlewares - configura logger y interceptor
 package middlewares
 
 import (
@@ -12,6 +13,7 @@ type responseRecorder struct {
 	written    bool
 }
 
+// WriteHeader funcion
 func (rr *responseRecorder) WriteHeader(code int) {
 	if !rr.written {
 		rr.statusCode = code
@@ -19,6 +21,8 @@ func (rr *responseRecorder) WriteHeader(code int) {
 		rr.ResponseWriter.WriteHeader(code)
 	}
 }
+
+// Write funcion
 func (rr *responseRecorder) Write(b []byte) (int, error) {
 	if !rr.written {
 		rr.WriteHeader(http.StatusOK)
@@ -34,6 +38,8 @@ func newResponseRecorder(w http.ResponseWriter) *responseRecorder {
 		// written:        false,
 	}
 }
+
+// Logger middleware que configura los logs
 func Logger(logger *slog.Logger) func(http.Handler) http.Handler {
 	return func(next http.Handler) http.Handler {
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {

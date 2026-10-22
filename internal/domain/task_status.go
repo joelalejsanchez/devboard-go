@@ -1,3 +1,4 @@
+// Package domain - define task_status
 package domain
 
 import (
@@ -5,14 +6,19 @@ import (
 	"fmt"
 )
 
+// TaskStatus type
 type TaskStatus string
 
 const (
-	TaskStatusTodo       TaskStatus = "todo"
+	// TaskStatusTodo estado pendiente
+	TaskStatusTodo TaskStatus = "todo"
+	// TaskStatusInProgress estado en progreso
 	TaskStatusInProgress TaskStatus = "in_progress"
-	TaskStatusDone       TaskStatus = "done"
+	// TaskStatusDone estado hecho
+	TaskStatusDone TaskStatus = "done"
 )
 
+// IsValid metodo de validacion de valor
 func (status TaskStatus) IsValid() bool {
 	switch status {
 	case
@@ -29,6 +35,8 @@ func (status TaskStatus) IsValid() bool {
 
 // Este metodo se usa para validaciones anidadas o custom al hacer un UnmarshalJSON
 // Valida Status al desserializar
+
+// UnmarshalJSON valida al desserializar el valor
 func (status *TaskStatus) UnmarshalJSON(data []byte) error {
 	var raw string
 	err := json.Unmarshal(data, &raw)

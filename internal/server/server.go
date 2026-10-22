@@ -1,3 +1,4 @@
+// Package server - paquete para creacion y configuracion de servidor
 package server
 
 import (
@@ -10,12 +11,14 @@ import (
 	"time"
 )
 
+// Server struct
 type Server struct {
 	httpServer *http.Server
 	mux        *http.ServeMux
 	logger     *slog.Logger
 }
 
+// Start inicia el servidor con un graceful shutdown
 func (s *Server) Start() error {
 	// Crear canal para notificar cuando se llama a apagar el proceso.
 	// SIGTERM cierre pasivo
@@ -53,18 +56,22 @@ func (s *Server) Start() error {
 	return nil
 }
 
+// RegisterRoute gestiona una ruta
 func (s *Server) RegisterRoute(pattern string, h http.Handler) {
 	s.mux.Handle(pattern, h)
 }
 
+// ServeHTTP cumple con endpoint
 func (s *Server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	s.mux.ServeHTTP(w, r)
 }
 
+// Use implementa middlewares
 func (s *Server) Use(middleware func(http.Handler) http.Handler) {
 	s.httpServer.Handler = middleware(s.httpServer.Handler)
 }
 
+// New crea nuevo servidor
 func New(addr string, logger *slog.Logger) *Server {
 	mux := http.NewServeMux()
 	httpServer := &http.Server{

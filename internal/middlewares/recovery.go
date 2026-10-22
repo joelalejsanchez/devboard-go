@@ -1,3 +1,4 @@
+// Package middlewares - Recuperacion de servidor ante panics
 package middlewares
 
 import (
@@ -6,6 +7,7 @@ import (
 	"runtime/debug"
 )
 
+// Recovery recupera el servidor de un panic y loggea
 func Recovery(logger *slog.Logger) func(http.Handler) http.Handler {
 	return func(next http.Handler) http.Handler {
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {

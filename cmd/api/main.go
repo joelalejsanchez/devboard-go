@@ -1,3 +1,4 @@
+// Package main - entrada al programa
 package main
 
 import (

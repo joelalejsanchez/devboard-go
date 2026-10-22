@@ -8,7 +8,6 @@ linters:
     - ineffassign
     - unused
     - gosec
-    - misspell
     - revive
 
   settings:

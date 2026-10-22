@@ -1,3 +1,4 @@
+// Package loggers - Configura loggers de aplicacion
 package loggers
 
 import (
@@ -6,12 +7,14 @@ import (
 	"os"
 )
 
+// Config struct
 type Config struct {
 	Level  slog.Level
 	JSON   bool
 	Output io.Writer
 }
 
+// DefaultConfig retorna configuracion de desarrollo
 func DefaultConfig() Config {
 	return Config{
 		Level:  slog.LevelDebug,
@@ -20,6 +23,7 @@ func DefaultConfig() Config {
 	}
 }
 
+// ProductionConfig retorna configuracion de produccion
 func ProductionConfig() Config {
 	return Config{
 		Level:  slog.LevelInfo,
@@ -28,6 +32,7 @@ func ProductionConfig() Config {
 	}
 }
 
+// New retorna nuevo slog/logger
 func New(config Config) *slog.Logger {
 	out := config.Output
 	if out == nil {

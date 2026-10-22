@@ -1,3 +1,4 @@
+// Package validator - configuracion central de validador
 package validator
 
 import (
@@ -7,21 +8,25 @@ import (
 	"github.com/go-playground/validator/v10"
 )
 
+// Validator struct
 type Validator struct {
 	validate *validator.Validate
 }
 
+// New validator
 func New() *Validator {
 	return &Validator{
 		validate: validator.New(validator.WithRequiredStructEnabled()),
 	}
 }
 
+// ValidationError structs
 type ValidationError struct {
 	Field   string `json:"field"`
 	Message string `json:"message"`
 }
 
+// Validate returns []ValidationError
 func (v *Validator) Validate(s interface{}) []ValidationError {
 	err := v.validate.Struct(s)
 

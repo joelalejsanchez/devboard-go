@@ -15,7 +15,13 @@ type healthResponse struct {
 	Version string `json:"version"`
 }
 
-// ServeHTTP function
+// ServeHTTP Devuelve el estado del servidor
+// @Summary Health check
+// @Description Verifica que el servidor este ejecutandose y respondiendo
+// @Tags system
+// @Produce json
+// @Success 200 {object} healthResponse
+// @Router /health [get]
 func (h *HealthHandler) ServeHTTP(w http.ResponseWriter, _ *http.Request) {
 	time.Sleep(time.Millisecond * 200)
 	res := healthResponse{

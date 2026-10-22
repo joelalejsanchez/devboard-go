@@ -28,6 +28,7 @@ func (status TaskStatus) IsValid() bool {
 }
 
 // Este metodo se usa para validaciones anidadas o custom al hacer un UnmarshalJSON
+// Valida Status al desserializar
 func (status *TaskStatus) UnmarshalJSON(data []byte) error {
 	var raw string
 	err := json.Unmarshal(data, &raw)

@@ -3,6 +3,7 @@ package server
 
 import (
 	"context"
+	"devboard/internal/middlewares"
 	"log/slog"
 	"net/http"
 	"os"
@@ -69,6 +70,11 @@ func (s *Server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 // Use implementa middlewares
 func (s *Server) Use(middleware func(http.Handler) http.Handler) {
 	s.httpServer.Handler = middleware(s.httpServer.Handler)
+}
+
+// UseChain implementa multiples middlewares a la vez
+func (s *Server) UseChain(m ...middlewares.Middleware) {
+	s.httpServer.Handler = middlewares.Chain(s.httpServer.Handler, m...)
 }
 
 // New crea nuevo servidor

@@ -22,7 +22,7 @@ func (r *UserRepository) Create(_ context.Context, user *domain.User) error {
 	defer r.mu.Unlock()
 	_, ok := r.usersByEmail[user.Email]
 	if ok {
-		return fmt.Errorf("usuario con correo %s: %v", user.Email, domain.ErrAlreadyExists)
+		return fmt.Errorf("usuario con correo %s: %w", user.Email, domain.ErrAlreadyExists)
 	}
 
 	user.ID = uuid.NewV7().String()
@@ -63,6 +63,7 @@ func (r *UserRepository) GetByEmail(_ context.Context, email string) (*domain.Us
 // NewUserRepository crea un nuveo repositorio en memoria
 func NewUserRepository() *UserRepository {
 	return &UserRepository{
-		users: make(map[string]*domain.User),
+		users:        make(map[string]*domain.User),
+		usersByEmail: make(map[string]*domain.User),
 	}
 }

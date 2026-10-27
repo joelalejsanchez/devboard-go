@@ -16,8 +16,7 @@ type GetUserHandler struct{}
 // ServeHTTP function
 func (h *GetUserHandler) ServeHTTP(w http.ResponseWriter, _ *http.Request) {
 	user := domain.User{
-		Name:     "joel",
-		Lastname: "sanchez",
+		Name: "joel",
 	}
 	data, err := json.Marshal(user)
 	if err != nil {

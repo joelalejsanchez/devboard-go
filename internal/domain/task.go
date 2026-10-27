@@ -72,6 +72,6 @@ var (
 	ErrTaskNewStatusInvalid = errors.New("el nuevo estado es invalido")
 	// ErrTaskAlreadyDone tarea completada
 	ErrTaskAlreadyDone = errors.New("la tarea ya está completada")
-	// ErrTaskAlreadyAssignable no se puede asignar en estado dnne
+	// ErrTaskNotAssignable no se puede asignar en estado dnne
 	ErrTaskNotAssignable = errors.New("la tarea no puede asignarse en este estado")
 )

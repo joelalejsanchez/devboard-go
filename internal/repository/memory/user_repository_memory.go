@@ -1,5 +1,5 @@
-// Package repository - repositorio de usuarios
-package repository
+// Package memory - repositorio de usuarios en memoria
+package memory
 
 import (
 	"context"
@@ -9,15 +9,15 @@ import (
 	"uuid"
 )
 
-// UserRepository adapter que implementa UserRepository , almacenamiento en memoria
-type UserRepository struct {
+// UserRepositoryMemory adapter que implementa UserRepositoryMemory , almacenamiento en memoria
+type UserRepositoryMemory struct {
 	mu           sync.RWMutex
 	users        map[string]*domain.User // [id string] -> *User
 	usersByEmail map[string]*domain.User // [email string] -> *User
 }
 
 // Create crea un usuario en memoria
-func (r *UserRepository) Create(_ context.Context, user *domain.User) error {
+func (r *UserRepositoryMemory) Create(_ context.Context, user *domain.User) error {
 	r.mu.Lock()
 	defer r.mu.Unlock()
 	_, ok := r.usersByEmail[user.Email]
@@ -37,7 +37,7 @@ func (r *UserRepository) Create(_ context.Context, user *domain.User) error {
 }
 
 // GetByID obtiene un usuario por id, desde memoria
-func (r *UserRepository) GetByID(_ context.Context, id string) (*domain.User, error) {
+func (r *UserRepositoryMemory) GetByID(_ context.Context, id string) (*domain.User, error) {
 	r.mu.RLock()
 	defer r.mu.RUnlock()
 	user, ok := r.users[id]
@@ -49,10 +49,10 @@ func (r *UserRepository) GetByID(_ context.Context, id string) (*domain.User, er
 }
 
 // GetByEmail obtiene un usuario por email, desde memoria
-func (r *UserRepository) GetByEmail(_ context.Context, email string) (*domain.User, error) {
+func (r *UserRepositoryMemory) GetByEmail(_ context.Context, email string) (*domain.User, error) {
 	r.mu.RLock()
 	defer r.mu.RUnlock()
-	user, ok := r.users[email]
+	user, ok := r.usersByEmail[email]
 	if !ok {
 		return nil, fmt.Errorf("usuario %s: %w", email, domain.ErrNotFound)
 	}
@@ -60,9 +60,9 @@ func (r *UserRepository) GetByEmail(_ context.Context, email string) (*domain.Us
 	return user, nil
 }
 
-// NewUserRepository crea un nuveo repositorio en memoria
-func NewUserRepository() *UserRepository {
-	return &UserRepository{
+// NewUserRepositoryMemory crea un nuveo repositorio en memoria
+func NewUserRepositoryMemory() *UserRepositoryMemory {
+	return &UserRepositoryMemory{
 		users:        make(map[string]*domain.User),
 		usersByEmail: make(map[string]*domain.User),
 	}

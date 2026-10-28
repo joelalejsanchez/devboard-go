@@ -1,5 +1,5 @@
-// Package usecase - casos de uso de usuario
-package usecase
+// Package usecases - casos de uso de usuario
+package usecases
 
 import (
 	"context"
@@ -11,7 +11,7 @@ import (
 // UserRepository contrato para obtener usuarios
 type UserRepository interface {
 	Create(ctx context.Context, user *domain.User) error
-	GetById(ctx context.Context, id string) (*domain.User, error)
+	GetByID(ctx context.Context, id string) (*domain.User, error)
 	GetByEmail(ctx context.Context, email string) (*domain.User, error)
 }
 
@@ -44,7 +44,7 @@ func (uc *UserUseCase) CreateUser(ctx context.Context, email, name, passwordHash
 
 // GetUser obtiene usuario por id
 func (uc *UserUseCase) GetUser(ctx context.Context, id string) (*domain.User, error) {
-	user, err := uc.repo.GetById(ctx, id)
+	user, err := uc.repo.GetByID(ctx, id)
 	if err != nil {
 		return nil, fmt.Errorf("obteniendo usuario %s: %w", id, err)
 	}

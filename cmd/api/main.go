@@ -3,6 +3,7 @@ package main
 
 import (
 	"log/slog"
+	"net/http"
 	"os"
 	"time"
 
@@ -10,8 +11,9 @@ import (
 	"devboard/internal/handlers"
 	"devboard/internal/loggers"
 	"devboard/internal/middlewares"
-	"devboard/internal/notification"
+	"devboard/internal/repository/memory"
 	"devboard/internal/server"
+	"devboard/internal/usecases"
 	"devboard/internal/validator"
 
 	httpSwagger "github.com/swaggo/http-swagger"
@@ -25,48 +27,50 @@ import (
 // @BasePath /api/v1
 func main() {
 
-	// 1. Configuracion del entorno
-	env := os.Getenv("GO_ENV")
-
-	// 2. Logger
-	var lgr *slog.Logger
-	if env == "production" {
-		lgr = loggers.New(loggers.ProductionConfig())
-	} else {
-		lgr = loggers.New(loggers.DefaultConfig())
+	lgr := setupLogger()
+	svr := setupServer(lgr)
+	setupRoutes(svr, lgr)
+	if err := svr.Start(); err != nil {
+		lgr.Error("error fatal", "error", err)
+		os.Exit(1)
 	}
 
-	// 3. Dependencias compartidas
-	validatorInstance := validator.New()
-	_ = validatorInstance
-	notifierInstance := notification.NewLogNotifier(lgr)
-	_ = notifierInstance
+}
 
-	// 4. Configuracion de servidor
+func setupServer(lgr *slog.Logger) *server.Server {
+
 	svr := server.New(
 		"localhost:8000",
 		server.WithLogger(lgr),
 		server.WithReadTimeout(15*time.Second),
 		server.WithWriteTimeout(30*time.Second),
 	)
-	// 6. handlers si existen
-	// 7. rutas
-	svr.RegisterRoute("GET /docs/", httpSwagger.WrapHandler)
-	svr.RegisterRoute("GET /1", &handlers.HealthHandler{})
-	svr.RegisterRoute("GET /users/one", &handlers.GetUserHandler{})
-	svr.RegisterRoute("POST /users", &handlers.PostUserHandler{Logger: lgr})
-
-	// 8. middlewares , esto funciona dado que se autoinyecta el handler
 	svr.UseChain(
 		middlewares.Recovery(lgr),
 		middlewares.Logger(lgr),
 	)
 
-	// 9. inicio del servidor
+	return svr
+}
+func setupLogger() *slog.Logger {
+	env := os.Getenv("GO_ENV")
 
-	if err := svr.Start(); err != nil {
-		lgr.Error("error fatal", "error", err)
-		os.Exit(1)
+	if env == "production" {
+		return loggers.New(loggers.ProductionConfig())
 	}
 
+	return loggers.New(loggers.DefaultConfig())
+}
+
+func setupRoutes(svr *server.Server, lgr *slog.Logger) {
+	vlt := validator.New()
+
+	userRepo := memory.NewUserRepositoryMemory()
+	uUC := usecases.NewUserUseCase(userRepo)
+	userHandler := handlers.NewUserHandler(uUC, vlt, lgr)
+
+	svr.RegisterRoute("GET 	/api/v1/docs/", httpSwagger.WrapHandler)
+	svr.RegisterRoute("GET 	/api/v1/health", &handlers.HealthHandler{})
+	svr.RegisterRoute("POST /api/v1/users", http.HandlerFunc(userHandler.Create))
+	svr.RegisterRoute("GET 	/api/v1/users/{id}", http.HandlerFunc(userHandler.Get))
 }

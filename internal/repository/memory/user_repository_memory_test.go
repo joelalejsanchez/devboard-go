@@ -1,4 +1,4 @@
-package repository
+package memory
 
 import (
 	"context"
@@ -10,7 +10,7 @@ import (
 
 func TestUserRepository_Create(t *testing.T) {
 	var err error
-	repo := NewUserRepository()
+	repo := NewUserRepositoryMemory()
 	ctx := context.Background()
 
 	user := &domain.User{
@@ -35,7 +35,7 @@ func TestUserRepository_Create(t *testing.T) {
 
 func TestUserRepository_GetByID_NotFound(t *testing.T) {
 	var err error
-	repo := NewUserRepository()
+	repo := NewUserRepositoryMemory()
 	ctx := context.Background()
 
 	_, err = repo.GetByID(ctx, "1")

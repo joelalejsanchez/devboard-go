@@ -93,8 +93,8 @@ func RespondValidationError(w http.ResponseWriter, errs []validator.ValidationEr
 	})
 }
 
-// ResponseJSON envia una respuesta exitosa en JSON
-func ResponseJSON(w http.ResponseWriter, status int, data any) error {
+// RespondJSON envia una respuesta exitosa en JSON
+func RespondJSON(w http.ResponseWriter, status int, data any) error {
 	return respondJSON(w, status, data)
 }
 

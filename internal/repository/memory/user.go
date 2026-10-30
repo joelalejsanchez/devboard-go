@@ -9,15 +9,15 @@ import (
 	"uuid"
 )
 
-// MemoryUserRepository adapter que implementa MemoryUserRepository , almacenamiento en memoria
-type MemoryUserRepository struct {
+// UserRepository adapter que implementa UserRepository , almacenamiento en memoria
+type UserRepository struct {
 	mu           sync.RWMutex
 	users        map[string]*domain.User // [id string] -> *User
 	usersByEmail map[string]*domain.User // [email string] -> *User
 }
 
 // Create crea un usuario en memoria
-func (r *MemoryUserRepository) Create(_ context.Context, user *domain.User) error {
+func (r *UserRepository) Create(_ context.Context, user *domain.User) error {
 	r.mu.Lock()
 	defer r.mu.Unlock()
 	_, ok := r.usersByEmail[user.Email]
@@ -37,7 +37,7 @@ func (r *MemoryUserRepository) Create(_ context.Context, user *domain.User) erro
 }
 
 // GetByID obtiene un usuario por id, desde memoria
-func (r *MemoryUserRepository) GetByID(_ context.Context, id string) (*domain.User, error) {
+func (r *UserRepository) GetByID(_ context.Context, id string) (*domain.User, error) {
 	r.mu.RLock()
 	defer r.mu.RUnlock()
 	user, ok := r.users[id]
@@ -49,7 +49,7 @@ func (r *MemoryUserRepository) GetByID(_ context.Context, id string) (*domain.Us
 }
 
 // GetByEmail obtiene un usuario por email, desde memoria
-func (r *MemoryUserRepository) GetByEmail(_ context.Context, email string) (*domain.User, error) {
+func (r *UserRepository) GetByEmail(_ context.Context, email string) (*domain.User, error) {
 	r.mu.RLock()
 	defer r.mu.RUnlock()
 	user, ok := r.usersByEmail[email]
@@ -60,9 +60,9 @@ func (r *MemoryUserRepository) GetByEmail(_ context.Context, email string) (*dom
 	return user, nil
 }
 
-// MemoryNewUserRepository crea un nuveo repositorio en memoria
-func MemoryNewUserRepository() *MemoryUserRepository {
-	return &MemoryUserRepository{
+// NewUserRepository crea un nuveo repositorio en memoria
+func NewUserRepository() *UserRepository {
+	return &UserRepository{
 		users:        make(map[string]*domain.User),
 		usersByEmail: make(map[string]*domain.User),
 	}

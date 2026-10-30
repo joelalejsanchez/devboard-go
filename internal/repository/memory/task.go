@@ -9,21 +9,21 @@ import (
 	"uuid"
 )
 
-// MemoryTaskRepository struct
-type MemoryTaskRepository struct {
+// TaskRepository struct
+type TaskRepository struct {
 	mu    sync.RWMutex
 	tasks map[string]*domain.Task
 }
 
 // NewTaskRepository constructor
-func NewTaskRepository() *MemoryTaskRepository {
-	return &MemoryTaskRepository{
+func NewTaskRepository() *TaskRepository {
+	return &TaskRepository{
 		tasks: make(map[string]*domain.Task),
 	}
 }
 
 // Create crea tarea
-func (r *MemoryTaskRepository) Create(ctx *context.Context, task *domain.Task) error {
+func (r *TaskRepository) Create(_ *context.Context, task *domain.Task) error {
 	r.mu.Lock()
 	defer r.mu.Unlock()
 
@@ -34,7 +34,7 @@ func (r *MemoryTaskRepository) Create(ctx *context.Context, task *domain.Task) e
 }
 
 // Update actualiza tarea
-func (r *MemoryTaskRepository) Update(ctx *context.Context, task *domain.Task) error {
+func (r *TaskRepository) Update(_ *context.Context, task *domain.Task) error {
 	r.mu.Lock()
 	defer r.mu.Unlock()
 
@@ -42,8 +42,8 @@ func (r *MemoryTaskRepository) Update(ctx *context.Context, task *domain.Task) e
 	return nil
 }
 
-// GetById obtiene tarea
-func (r *MemoryTaskRepository) GetById(ctx *context.Context, id string) (*domain.Task, error) {
+// GetByID obtiene tarea
+func (r *TaskRepository) GetByID(_ *context.Context, id string) (*domain.Task, error) {
 	r.mu.RLock()
 	defer r.mu.RUnlock()
 	task, ok := r.tasks[id]
@@ -55,7 +55,7 @@ func (r *MemoryTaskRepository) GetById(ctx *context.Context, id string) (*domain
 }
 
 // ListByProject obtiene tareas de proyecto
-func (r *MemoryTaskRepository) ListByProject(ctx *context.Context, projectID string) ([]*domain.Task, error) {
+func (r *TaskRepository) ListByProject(_ *context.Context, projectID string) ([]*domain.Task, error) {
 	var result []*domain.Task
 	for _, task := range r.tasks {
 		if task.ProjectID == projectID {

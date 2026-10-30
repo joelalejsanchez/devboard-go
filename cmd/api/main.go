@@ -65,7 +65,7 @@ func setupLogger() *slog.Logger {
 func setupRoutes(svr *server.Server, lgr *slog.Logger) {
 	vlt := validator.New()
 
-	userRepo := memory.MemoryNewUserRepository()
+	userRepo := memory.NewUserRepository()
 	uUC := usecases.NewUserUseCase(userRepo)
 	userHandler := handlers.NewUserHandler(uUC, vlt, lgr)
 

@@ -46,7 +46,7 @@ type userResponse struct {
 // @Produce json
 // @Param request body createUserRequest true "Datos del usuario"
 // @Success 201 {object} userResponse
-// @Failure 400 {object} ProblemDetails
+// @Failure 400 {object} utils.ProblemDetails
 // @Router /users [post]
 func (h *UserHandler) Create(w http.ResponseWriter, r *http.Request) {
 	var req createUserRequest
@@ -84,9 +84,9 @@ func (h *UserHandler) Create(w http.ResponseWriter, r *http.Request) {
 // @Description Obtiene un usuario por id
 // @Tags users
 // @Produce json
-// @Param id path strin true "ID del usuario"
+// @Param id path string true "ID del usuario"
 // @Success 200 {object} userResponse
-// @Failure 400 {object} ProblemDetails
+// @Failure 400 {object} utils.ProblemDetails
 // @Router /users/{id} [get]
 func (h *UserHandler) Get(w http.ResponseWriter, r *http.Request) {
 	id := r.PathValue("id")

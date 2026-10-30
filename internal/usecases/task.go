@@ -9,14 +9,14 @@ import (
 
 // TaskCommandRepository contrato de escritura CQRS
 type TaskCommandRepository interface {
-	Create(ctx *context.Context, task *domain.Task) error
-	Update(ctx *context.Context, task *domain.Task) error
+	Create(ctx context.Context, task *domain.Task) error
+	Update(ctx context.Context, task *domain.Task) error
 }
 
 // TaskQueryRepository contrato de lectura CQRS
 type TaskQueryRepository interface {
-	GetByID(ctx *context.Context, id string) (*domain.Task, error)
-	ListByProject(ctx *context.Context, projectID string) ([]*domain.Task, error)
+	GetByID(ctx context.Context, id string) (*domain.Task, error)
+	ListByProject(ctx context.Context, projectID string) ([]*domain.Task, error)
 }
 
 // TaskUseCase struct
@@ -34,7 +34,7 @@ func NewTaskUseCase(commands TaskCommandRepository, queries TaskQueryRepository)
 }
 
 // CreateTask crea una tarea
-func (uc *TaskUseCase) CreateTask(ctx *context.Context, projectID, title, createdBy string) (*domain.Task, error) {
+func (uc *TaskUseCase) CreateTask(ctx context.Context, projectID, title, createdBy string) (*domain.Task, error) {
 	task := domain.NewTask(projectID, title, createdBy)
 
 	if err := uc.commands.Create(ctx, task); err != nil {
@@ -45,13 +45,13 @@ func (uc *TaskUseCase) CreateTask(ctx *context.Context, projectID, title, create
 }
 
 // ListProjectTasks Obtiene todas las tareas
-func (uc *TaskUseCase) ListProjectTasks(ctx *context.Context, projectID string) ([]*domain.Task, error) {
+func (uc *TaskUseCase) ListProjectTasks(ctx context.Context, projectID string) ([]*domain.Task, error) {
 	return uc.queries.ListByProject(ctx, projectID)
 
 }
 
 // AssignTask asigna una tarea a un usuario
-func (uc *TaskUseCase) AssignTask(ctx *context.Context, taskID, userID string) (*domain.Task, error) {
+func (uc *TaskUseCase) AssignTask(ctx context.Context, taskID, userID string) (*domain.Task, error) {
 	task, err := uc.queries.GetByID(ctx, taskID)
 	if err != nil {
 		return nil, fmt.Errorf("obteniendo tarea a asignar: %w", err)
@@ -70,7 +70,7 @@ func (uc *TaskUseCase) AssignTask(ctx *context.Context, taskID, userID string) (
 }
 
 // GetTask obtiene tarea por id
-func (uc *TaskUseCase) GetTask(ctx *context.Context, id string) (*domain.Task, error) {
+func (uc *TaskUseCase) GetTask(ctx context.Context, id string) (*domain.Task, error) {
 	task, err := uc.queries.GetByID(ctx, id)
 	if err != nil {
 		return nil, fmt.Errorf("obteniendo tarea: %w", err)

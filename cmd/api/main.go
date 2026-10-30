@@ -69,8 +69,14 @@ func setupRoutes(svr *server.Server, lgr *slog.Logger) {
 	uUC := usecases.NewUserUseCase(userRepo)
 	userHandler := handlers.NewUserHandler(uUC, vlt, lgr)
 
+	taskRepo := memory.NewTaskRepository()
+	tUC := usecases.NewTaskUseCase(taskRepo, taskRepo)
+	taskHandler := handlers.NewTaskHandler(tUC, vlt, lgr)
+
 	svr.RegisterRoute("GET 	/api/v1/docs/", httpSwagger.WrapHandler)
 	svr.RegisterRoute("GET 	/api/v1/health", &handlers.HealthHandler{})
 	svr.RegisterRoute("POST /api/v1/users", http.HandlerFunc(userHandler.Create))
 	svr.RegisterRoute("GET 	/api/v1/users/{id}", http.HandlerFunc(userHandler.Get))
+	svr.RegisterRoute("POST /api/v1/tasks", http.HandlerFunc(taskHandler.Create))
+	svr.RegisterRoute("GET 	/api/v1/tasks/{id}", http.HandlerFunc(taskHandler.GetByID))
 }

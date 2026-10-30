@@ -23,7 +23,7 @@ func NewTaskRepository() *TaskRepository {
 }
 
 // Create crea tarea
-func (r *TaskRepository) Create(_ *context.Context, task *domain.Task) error {
+func (r *TaskRepository) Create(_ context.Context, task *domain.Task) error {
 	r.mu.Lock()
 	defer r.mu.Unlock()
 
@@ -34,7 +34,7 @@ func (r *TaskRepository) Create(_ *context.Context, task *domain.Task) error {
 }
 
 // Update actualiza tarea
-func (r *TaskRepository) Update(_ *context.Context, task *domain.Task) error {
+func (r *TaskRepository) Update(_ context.Context, task *domain.Task) error {
 	r.mu.Lock()
 	defer r.mu.Unlock()
 
@@ -43,7 +43,7 @@ func (r *TaskRepository) Update(_ *context.Context, task *domain.Task) error {
 }
 
 // GetByID obtiene tarea
-func (r *TaskRepository) GetByID(_ *context.Context, id string) (*domain.Task, error) {
+func (r *TaskRepository) GetByID(_ context.Context, id string) (*domain.Task, error) {
 	r.mu.RLock()
 	defer r.mu.RUnlock()
 	task, ok := r.tasks[id]
@@ -55,7 +55,7 @@ func (r *TaskRepository) GetByID(_ *context.Context, id string) (*domain.Task, e
 }
 
 // ListByProject obtiene tareas de proyecto
-func (r *TaskRepository) ListByProject(_ *context.Context, projectID string) ([]*domain.Task, error) {
+func (r *TaskRepository) ListByProject(_ context.Context, projectID string) ([]*domain.Task, error) {
 	var result []*domain.Task
 	for _, task := range r.tasks {
 		if task.ProjectID == projectID {

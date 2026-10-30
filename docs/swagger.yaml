@@ -1,10 +1,82 @@
 basePath: /api/v1
 definitions:
+  handlers.createTaskRequest:
+    properties:
+      project_id:
+        type: string
+      title:
+        maxLength: 200
+        minLength: 3
+        type: string
+    required:
+    - project_id
+    - title
+    type: object
+  handlers.createUserRequest:
+    properties:
+      email:
+        type: string
+      name:
+        maxLength: 100
+        minLength: 2
+        type: string
+      password:
+        minLength: 8
+        type: string
+    required:
+    - email
+    - name
+    - password
+    type: object
   handlers.healthResponse:
     properties:
       status:
         type: string
       version:
+        type: string
+    type: object
+  handlers.taskResponse:
+    properties:
+      created_by:
+        type: string
+      id:
+        type: string
+      project_id:
+        type: string
+      title:
+        type: string
+    type: object
+  handlers.userResponse:
+    properties:
+      email:
+        type: string
+      id:
+        type: string
+      name:
+        type: string
+    type: object
+  utils.ProblemDetails:
+    properties:
+      detail:
+        type: string
+      errors:
+        items:
+          $ref: '#/definitions/validator.ValidationError'
+        type: array
+      instance:
+        type: string
+      status:
+        type: integer
+      title:
+        type: string
+      type:
+        type: string
+    type: object
+  validator.ValidationError:
+    properties:
+      field:
+        type: string
+      message:
         type: string
     type: object
 host: localhost:8000
@@ -28,4 +100,98 @@ paths:
       summary: Health check
       tags:
       - system
+  /tasks:
+    post:
+      description: Crea una tarea
+      parameters:
+      - description: Datos de la tarea
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/handlers.createTaskRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/handlers.taskResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/utils.ProblemDetails'
+      summary: Create Task
+      tags:
+      - tasks
+  /tasks/{id}:
+    get:
+      description: Obtiene un task por id
+      parameters:
+      - description: ID de la tarea
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/handlers.taskResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/utils.ProblemDetails'
+      summary: Get Task
+      tags:
+      - tasks
+  /users:
+    post:
+      description: Crea un usuario
+      parameters:
+      - description: Datos del usuario
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/handlers.createUserRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/handlers.userResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/utils.ProblemDetails'
+      summary: Create User
+      tags:
+      - users
+  /users/{id}:
+    get:
+      description: Obtiene un usuario por id
+      parameters:
+      - description: ID del usuario
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/handlers.userResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/utils.ProblemDetails'
+      summary: Get User
+      tags:
+      - users
 swagger: "2.0"

@@ -115,17 +115,13 @@ func (h *TaskHandler) GetByID(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-type taskListResponse struct {
-	Data []*domain.Task `json:"data"`
-}
-
 // ListByProject obtiene tareas de un proyecto
 // @Summary Get Tasks from Project
 // @Description Obtiene las tasks de un proyecto
 // @Tags tasks
 // @Produce json
 // @Param id path string true "ID del proyecto"
-// @Success 200 {object} taskListResponse
+// @Success 200 {object} utils.PaginatedResponse[taskResponse]
 // @Failure 404 {object} utils.ProblemDetails
 // @Router /projects/{id}/tasks [get]
 func (h *TaskHandler) ListByProject(w http.ResponseWriter, r *http.Request) {
@@ -161,7 +157,7 @@ type taskAssignRequest struct {
 // @Produce json
 // @Param request body taskAssignRequest true "Datos de la tarea"
 // @Param id path string true "ID de la tarea"
-// @Success 200 {object} taskListResponse
+// @Success 200 {object}
 // @Failure 404 {object} utils.ProblemDetails
 // @Router /tasks/{id}/assign [put]
 func (h *TaskHandler) Assign(w http.ResponseWriter, r *http.Request) {
@@ -199,7 +195,7 @@ type taskUpdateStatusRequest struct {
 // @Produce json
 // @Param request body taskUpdateStatusRequest true "Datos de la tarea"
 // @Param id path string true "ID de la tarea"
-// @Success 200 {object} taskListResponse
+// @Success 200 {object} taskResponse
 // @Failure 404 {object} utils.ProblemDetails
 // @Router /tasks/{id}/status [put]
 func (h *TaskHandler) UpdateStatus(w http.ResponseWriter, r *http.Request) {

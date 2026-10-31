@@ -9,6 +9,7 @@ import (
 
 	_ "devboard/docs"
 	"devboard/internal/handlers"
+	_ "devboard/internal/handlers/utils"
 	"devboard/internal/loggers"
 	"devboard/internal/middlewares"
 	"devboard/internal/repository/memory"
@@ -80,6 +81,6 @@ func setupRoutes(svr *server.Server, lgr *slog.Logger) {
 	svr.RegisterRoute("POST /api/v1/tasks", http.HandlerFunc(taskHandler.Create))
 	svr.RegisterRoute("GET 	/api/v1/tasks/{id}", http.HandlerFunc(taskHandler.GetByID))
 	svr.RegisterRoute("GET 	/api/v1/projects/{id}/tasks", http.HandlerFunc(taskHandler.ListByProject))
-	svr.RegisterRoute("PUT  /api/v1/tasks/{id}/assign", http.HandlerFunc(taskHandler.GetByID))
-	svr.RegisterRoute("PUT 	/api/v1/tasks/{id}/status", http.HandlerFunc(taskHandler.GetByID))
+	svr.RegisterRoute("PUT  /api/v1/tasks/{id}/assign", http.HandlerFunc(taskHandler.Assign))
+	svr.RegisterRoute("PUT 	/api/v1/tasks/{id}/status", http.HandlerFunc(taskHandler.UpdateStatus))
 }

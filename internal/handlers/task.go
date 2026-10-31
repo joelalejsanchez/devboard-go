@@ -47,8 +47,8 @@ type taskResponse struct {
 }
 
 // toTaskResponse convierte entidad de dominio a estructura de respuesta
-func toTaskResponse(task *domain.Task) *taskResponse {
-	return &taskResponse{
+func toTaskResponse(task *domain.Task) taskResponse {
+	return taskResponse{
 		ID:          task.ID,
 		ProjectID:   task.ProjectID,
 		Title:       task.Title,
@@ -100,7 +100,7 @@ func (h *TaskHandler) Create(w http.ResponseWriter, r *http.Request) {
 // @Produce json
 // @Param id path string true "ID de la tarea"
 // @Success 200 {object} taskResponse
-// @Failure 400 {object} utils.ProblemDetails
+// @Failure 404 {object} utils.ProblemDetails
 // @Router /tasks/{id} [get]
 func (h *TaskHandler) GetByID(w http.ResponseWriter, r *http.Request) {
 	id := r.PathValue("id")
@@ -126,7 +126,7 @@ type taskListResponse struct {
 // @Produce json
 // @Param id path string true "ID del proyecto"
 // @Success 200 {object} taskListResponse
-// @Failure 400 {object} utils.ProblemDetails
+// @Failure 404 {object} utils.ProblemDetails
 // @Router /projects/{id}/tasks [get]
 func (h *TaskHandler) ListByProject(w http.ResponseWriter, r *http.Request) {
 	projectID := r.PathValue("id")
@@ -136,7 +136,15 @@ func (h *TaskHandler) ListByProject(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if err := utils.RespondJSON(w, http.StatusOK, taskListResponse{Data: tasks}); err != nil {
+	response := make([]taskResponse, len(tasks))
+	for i, task := range tasks {
+		response[i] = toTaskResponse(task)
+	}
+
+	if err := utils.RespondJSON(w, http.StatusOK, utils.PaginatedResponse[taskResponse]{
+		Data:    response,
+		HasMore: false,
+	}); err != nil {
 		h.logger.ErrorContext(r.Context(), "error al enviar respuesta")
 	}
 }
@@ -154,7 +162,7 @@ type taskAssignRequest struct {
 // @Param request body taskAssignRequest true "Datos de la tarea"
 // @Param id path string true "ID de la tarea"
 // @Success 200 {object} taskListResponse
-// @Failure 400,404 {object} utils.ProblemDetails
+// @Failure 404 {object} utils.ProblemDetails
 // @Router /tasks/{id}/assign [put]
 func (h *TaskHandler) Assign(w http.ResponseWriter, r *http.Request) {
 	var req taskAssignRequest
@@ -192,7 +200,7 @@ type taskUpdateStatusRequest struct {
 // @Param request body taskUpdateStatusRequest true "Datos de la tarea"
 // @Param id path string true "ID de la tarea"
 // @Success 200 {object} taskListResponse
-// @Failure 404,400 {object} utils.ProblemDetails
+// @Failure 404 {object} utils.ProblemDetails
 // @Router /tasks/{id}/status [put]
 func (h *TaskHandler) UpdateStatus(w http.ResponseWriter, r *http.Request) {
 	var req taskUpdateStatusRequest

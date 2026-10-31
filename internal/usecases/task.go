@@ -46,8 +46,11 @@ func (uc *TaskUseCase) CreateTask(ctx context.Context, projectID, title, created
 
 // ListProjectTasks Obtiene todas las tareas
 func (uc *TaskUseCase) ListProjectTasks(ctx context.Context, projectID string) ([]*domain.Task, error) {
-	return uc.queries.ListByProject(ctx, projectID)
-
+	tasks, err := uc.queries.ListByProject(ctx, projectID)
+	if err != nil {
+		return nil, fmt.Errorf("obteniendo tareas de proyecto: %w", err)
+	}
+	return tasks, nil
 }
 
 // AssignTask asigna una tarea a un usuario

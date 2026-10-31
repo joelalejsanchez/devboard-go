@@ -149,6 +149,7 @@ type taskAssignRequest struct {
 // @Summary Asignar tarea a usuario
 // @Description Asigna una tarea a un usuario
 // @Tags tasks
+// @Accepts json
 // @Produce json
 // @Param request body taskAssignRequest true "Datos de la tarea"
 // @Param id path string true "ID de la tarea"
@@ -186,6 +187,7 @@ type taskUpdateStatusRequest struct {
 // @Summary actualiza el estado de tarea
 // @Description actualiza el estado de tarae
 // @Tags tasks
+// @Accepts json
 // @Produce json
 // @Param request body taskUpdateStatusRequest true "Datos de la tarea"
 // @Param id path string true "ID de la tarea"

@@ -448,7 +448,16 @@ const docTemplate = `{
         "handlers.taskResponse": {
             "type": "object",
             "properties": {
+                "assinee_id": {
+                    "type": "string"
+                },
+                "created_at": {
+                    "type": "string"
+                },
                 "created_by": {
+                    "type": "string"
+                },
+                "description": {
                     "type": "string"
                 },
                 "id": {
@@ -457,7 +466,13 @@ const docTemplate = `{
                 "project_id": {
                     "type": "string"
                 },
+                "status": {
+                    "$ref": "#/definitions/domain.TaskStatus"
+                },
                 "title": {
+                    "type": "string"
+                },
+                "updated_at": {
                     "type": "string"
                 }
             }

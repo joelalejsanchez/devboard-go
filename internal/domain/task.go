@@ -55,15 +55,16 @@ func (t *Task) MoveToStatus(status TaskStatus) error {
 }
 
 // NewTask crea una nueva tarea
-func NewTask(projectID, title, createdBy string) *Task {
+func NewTask(projectID, title, description, createdBy string) *Task {
 	now := time.Now()
 	return &Task{
-		ProjectID: projectID,
-		Title:     title,
-		Status:    TaskStatusTodo,
-		CreatedBy: createdBy,
-		CreatedAt: now,
-		UpdatedAt: now,
+		ProjectID:   projectID,
+		Title:       title,
+		Description: description,
+		Status:      TaskStatusTodo,
+		CreatedBy:   createdBy,
+		CreatedAt:   now,
+		UpdatedAt:   now,
 	}
 }
 

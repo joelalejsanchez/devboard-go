@@ -30,8 +30,9 @@ func NewTaskHandler(uc *usecases.TaskUseCase, v *validator.Validator, l *slog.Lo
 
 // createTaskRequest struct
 type createTaskRequest struct {
-	ProjectID string `json:"project_id" validate:"required"`
-	Title     string `json:"title" validate:"required,min=3,max=200"`
+	ProjectID   string `json:"project_id" validate:"required"`
+	Title       string `json:"title" validate:"required,min=3,max=200"`
+	Description string `json:"description" validate:"max=2000"`
 }
 
 type taskResponse struct {
@@ -83,7 +84,7 @@ func (h *TaskHandler) Create(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
-	task, err := h.usecase.CreateTask(r.Context(), req.ProjectID, req.Title, "system")
+	task, err := h.usecase.CreateTask(r.Context(), req.ProjectID, req.Title, req.Description, "system")
 	if err != nil {
 		utils.RespondError(w, r, h.logger, err)
 	}
@@ -155,7 +156,7 @@ type assignTaskRequest struct {
 // @Tags tasks
 // @Accepts json
 // @Produce json
-// @Param request body taskAssignRequest true "ID del asignado"
+// @Param request body assignTaskRequest true "ID del asignado"
 // @Param id path string true "ID de la tarea"
 // @Success 200 {object} taskResponse
 // @Failure 404 {object} utils.ProblemDetails

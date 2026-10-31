@@ -9,6 +9,7 @@ import (
 	"encoding/json"
 	"log/slog"
 	"net/http"
+	"time"
 )
 
 // TaskHandler struct
@@ -34,10 +35,30 @@ type createTaskRequest struct {
 }
 
 type taskResponse struct {
-	ID        string `json:"id"`
-	ProjectID string `json:"project_id"`
-	Title     string `json:"title"`
-	CreatedBy string `json:"created_by"`
+	ID          string            `json:"id"`
+	ProjectID   string            `json:"project_id"`
+	Title       string            `json:"title"`
+	Description string            `json:"description,omitempty"`
+	Status      domain.TaskStatus `json:"status"`
+	AssineeID   *string           `json:"assinee_id,omitempty"`
+	CreatedBy   string            `json:"created_by"`
+	CreatedAt   time.Time         `json:"created_at"`
+	UpdatedAt   time.Time         `json:"updated_at"`
+}
+
+// toTaskResponse convierte entidad de dominio a estructura de respuesta
+func toTaskResponse(task *domain.Task) *taskResponse {
+	return &taskResponse{
+		ID:          task.ID,
+		ProjectID:   task.ProjectID,
+		Title:       task.Title,
+		Description: task.Description,
+		Status:      task.Status,
+		AssineeID:   task.AssigneeID,
+		CreatedAt:   task.CreatedAt,
+		UpdatedAt:   task.UpdatedAt,
+		CreatedBy:   task.CreatedBy,
+	}
 }
 
 // Create crear tarea
@@ -67,17 +88,12 @@ func (h *TaskHandler) Create(w http.ResponseWriter, r *http.Request) {
 		utils.RespondError(w, r, h.logger, err)
 	}
 
-	if err := utils.RespondJSON(w, http.StatusCreated, taskResponse{
-		ID:        task.ID,
-		ProjectID: task.ProjectID,
-		Title:     task.Title,
-		CreatedBy: task.CreatedBy,
-	}); err != nil {
+	if err := utils.RespondJSON(w, http.StatusCreated, toTaskResponse(task)); err != nil {
 		h.logger.ErrorContext(r.Context(), "error al enviar respuesta")
 	}
 }
 
-// GetByID obtiene un usuario por id
+// GetByID get task by id
 // @Summary Get Task
 // @Description Obtiene un task por id
 // @Tags tasks
@@ -94,12 +110,7 @@ func (h *TaskHandler) GetByID(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if err := utils.RespondJSON(w, http.StatusOK, taskResponse{
-		ID:        task.ID,
-		ProjectID: task.ProjectID,
-		Title:     task.Title,
-		CreatedBy: task.CreatedBy,
-	}); err != nil {
+	if err := utils.RespondJSON(w, http.StatusOK, toTaskResponse(task)); err != nil {
 		h.logger.ErrorContext(r.Context(), "error al enviar respuesta")
 	}
 }
@@ -162,12 +173,7 @@ func (h *TaskHandler) Assign(w http.ResponseWriter, r *http.Request) {
 		utils.RespondError(w, r, h.logger, err)
 	}
 
-	if err := utils.RespondJSON(w, http.StatusOK, taskResponse{
-		ID:        task.ID,
-		ProjectID: task.ProjectID,
-		Title:     task.Title,
-		CreatedBy: task.CreatedBy,
-	}); err != nil {
+	if err := utils.RespondJSON(w, http.StatusOK, toTaskResponse(task)); err != nil {
 		h.logger.ErrorContext(r.Context(), "error al enviar respuesta")
 	}
 }
@@ -204,12 +210,7 @@ func (h *TaskHandler) UpdateStatus(w http.ResponseWriter, r *http.Request) {
 		utils.RespondError(w, r, h.logger, err)
 	}
 
-	if err := utils.RespondJSON(w, http.StatusOK, taskResponse{
-		ID:        task.ID,
-		ProjectID: task.ProjectID,
-		Title:     task.Title,
-		CreatedBy: task.CreatedBy,
-	}); err != nil {
+	if err := utils.RespondJSON(w, http.StatusOK, toTaskResponse(task)); err != nil {
 		h.logger.ErrorContext(r.Context(), "error al enviar respuesta")
 	}
 }

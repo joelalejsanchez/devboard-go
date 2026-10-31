@@ -49,7 +49,9 @@ func (r *UserRepository) Create(ctx context.Context, user *domain.User) error {
 		return fmt.Errorf("creando usuario en BD: %w", err)
 	}
 
-	user = toDomainUser(result)
+	user.ID = result.ID.String()
+	user.CreatedAt = result.CreatedAt.Time
+	user.UpdatedAt = result.UpdatedAt.Time
 	return nil
 }
 

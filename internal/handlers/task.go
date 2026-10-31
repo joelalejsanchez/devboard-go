@@ -145,8 +145,8 @@ func (h *TaskHandler) ListByProject(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-type taskAssignRequest struct {
-	UserID string `json:"user_id" validate:"required"`
+type assignTaskRequest struct {
+	AssigneeID string `json:"assignee_id" validate:"required,uuid7"`
 }
 
 // Assign asigna la tarea a un usuario
@@ -155,13 +155,15 @@ type taskAssignRequest struct {
 // @Tags tasks
 // @Accepts json
 // @Produce json
-// @Param request body taskAssignRequest true "Datos de la tarea"
+// @Param request body taskAssignRequest true "ID del asignado"
 // @Param id path string true "ID de la tarea"
-// @Success 200 {object}
+// @Success 200 {object} taskResponse
 // @Failure 404 {object} utils.ProblemDetails
 // @Router /tasks/{id}/assign [put]
 func (h *TaskHandler) Assign(w http.ResponseWriter, r *http.Request) {
-	var req taskAssignRequest
+	id := r.PathValue("id")
+	var req assignTaskRequest
+
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
 		utils.RespondError(w, r, h.logger, err)
 		return
@@ -170,12 +172,13 @@ func (h *TaskHandler) Assign(w http.ResponseWriter, r *http.Request) {
 		if err := utils.RespondValidationError(w, errs); err != nil {
 			h.logger.ErrorContext(r.Context(), "error al escribir respuesta de error de validacion")
 		}
+		return
 	}
 
-	id := r.PathValue("id")
-	task, err := h.usecase.AssignTask(r.Context(), id, req.UserID)
+	task, err := h.usecase.AssignTask(r.Context(), id, req.AssigneeID)
 	if err != nil {
 		utils.RespondError(w, r, h.logger, err)
+		return
 	}
 
 	if err := utils.RespondJSON(w, http.StatusOK, toTaskResponse(task)); err != nil {
@@ -183,8 +186,8 @@ func (h *TaskHandler) Assign(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-type taskUpdateStatusRequest struct {
-	Status string `json:"status" validate:"in_progress|todo|done"`
+type updateStatusRequest struct {
+	Status domain.TaskStatus `json:"status" validate:"required"`
 }
 
 // UpdateStatus actualiza el estado
@@ -193,13 +196,15 @@ type taskUpdateStatusRequest struct {
 // @Tags tasks
 // @Accepts json
 // @Produce json
-// @Param request body taskUpdateStatusRequest true "Datos de la tarea"
+// @Param request body updateStatusRequest true "Datos de la tarea"
 // @Param id path string true "ID de la tarea"
 // @Success 200 {object} taskResponse
 // @Failure 404 {object} utils.ProblemDetails
 // @Router /tasks/{id}/status [put]
 func (h *TaskHandler) UpdateStatus(w http.ResponseWriter, r *http.Request) {
-	var req taskUpdateStatusRequest
+	id := r.PathValue("id")
+	var req updateStatusRequest
+
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
 		utils.RespondError(w, r, h.logger, err)
 		return
@@ -208,12 +213,13 @@ func (h *TaskHandler) UpdateStatus(w http.ResponseWriter, r *http.Request) {
 		if err := utils.RespondValidationError(w, errs); err != nil {
 			h.logger.ErrorContext(r.Context(), "error al escribir respuesta de error de validacion")
 		}
+		return
 	}
 
-	id := r.PathValue("id")
 	task, err := h.usecase.UpdateStatus(r.Context(), id, domain.TaskStatus(req.Status))
 	if err != nil {
 		utils.RespondError(w, r, h.logger, err)
+		return
 	}
 
 	if err := utils.RespondJSON(w, http.StatusOK, toTaskResponse(task)); err != nil {

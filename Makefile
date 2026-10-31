@@ -2,7 +2,7 @@
 APP_NAME=devboard
 MAIN_PATH=./cmd/api
 MIGRATE_PATH=./migrations
-DB_URL=postgresql://postgres:password@localhost:5432/devboard?sslmode=disable
+DB_URL=postgresql://postgres:password@localhost:5433/devboard?sslmode=disable
 
 .PHONY: run build test format lint migrate-create migrate-up migrate-down generate tidy help docs docker-up docker-down docker-logs
 

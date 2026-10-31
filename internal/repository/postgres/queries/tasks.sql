@@ -1,9 +1,9 @@
--- name:CreateTask :one
+-- name: CreateTask :one
 INSERT INTO tasks(project_id,title,description,status,assignee_id,created_by)
 VALUES($1,$2,$3,$4,$5,$6)
 RETURNING *;
 
--- name:GetTaskByID :one
+-- name: GetTaskByID :one
 select * from tasks
 where id = $1
 limit 1;

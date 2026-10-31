@@ -69,6 +69,25 @@ func (uc *TaskUseCase) AssignTask(ctx context.Context, taskID, userID string) (*
 	return task, nil
 }
 
+// UpdateStatus asigna una tarea a un usuario
+func (uc *TaskUseCase) UpdateStatus(ctx context.Context, taskID string, status domain.TaskStatus) (*domain.Task, error) {
+	task, err := uc.queries.GetByID(ctx, taskID)
+	if err != nil {
+		return nil, fmt.Errorf("obteniendo tarea a asignar: %w", err)
+	}
+
+	if err := task.MoveToStatus(status); err != nil {
+		return nil, fmt.Errorf("actualizando estado de tarea: %w", err)
+	}
+
+	if err := uc.commands.Update(ctx, task); err != nil {
+		return nil, fmt.Errorf("actualizando tarea: %w", err)
+
+	}
+
+	return task, nil
+}
+
 // GetTask obtiene tarea por id
 func (uc *TaskUseCase) GetTask(ctx context.Context, id string) (*domain.Task, error) {
 	task, err := uc.queries.GetByID(ctx, id)

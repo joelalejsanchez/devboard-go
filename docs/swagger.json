@@ -31,6 +31,41 @@
                 }
             }
         },
+        "/projects/{id}/tasks": {
+            "get": {
+                "description": "Obtiene las tasks de un proyecto",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "tasks"
+                ],
+                "summary": "Get Tasks from Project",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "ID del proyecto",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/handlers.taskListResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/utils.ProblemDetails"
+                        }
+                    }
+                }
+            }
+        },
         "/tasks": {
             "post": {
                 "description": "Crea una tarea",
@@ -96,6 +131,106 @@
                     },
                     "400": {
                         "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/utils.ProblemDetails"
+                        }
+                    }
+                }
+            }
+        },
+        "/tasks/{id}/assign": {
+            "put": {
+                "description": "Asigna una tarea a un usuario",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "tasks"
+                ],
+                "summary": "Asignar tarea a usuario",
+                "parameters": [
+                    {
+                        "description": "Datos de la tarea",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/handlers.taskAssignRequest"
+                        }
+                    },
+                    {
+                        "type": "string",
+                        "description": "ID de la tarea",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/handlers.taskListResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/utils.ProblemDetails"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/utils.ProblemDetails"
+                        }
+                    }
+                }
+            }
+        },
+        "/tasks/{id}/status": {
+            "put": {
+                "description": "actualiza el estado de tarae",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "tasks"
+                ],
+                "summary": "actualiza el estado de tarea",
+                "parameters": [
+                    {
+                        "description": "Datos de la tarea",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/handlers.taskUpdateStatusRequest"
+                        }
+                    },
+                    {
+                        "type": "string",
+                        "description": "ID de la tarea",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/handlers.taskListResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/utils.ProblemDetails"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
                         "schema": {
                             "$ref": "#/definitions/utils.ProblemDetails"
                         }
@@ -177,6 +312,61 @@
         }
     },
     "definitions": {
+        "domain.Task": {
+            "type": "object",
+            "properties": {
+                "assigneeID": {
+                    "description": "`json:\"assinee_id\"` // no obliga a crear desde un inicio la referencia",
+                    "type": "string"
+                },
+                "createdAt": {
+                    "type": "string"
+                },
+                "createdBy": {
+                    "type": "string"
+                },
+                "description": {
+                    "description": "`json:\"description\"`",
+                    "type": "string"
+                },
+                "id": {
+                    "description": "`json:\"id\"`",
+                    "type": "string"
+                },
+                "projectID": {
+                    "description": "`json:\"project_id\"`",
+                    "type": "string"
+                },
+                "status": {
+                    "description": "`json:\"status\"`",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/domain.TaskStatus"
+                        }
+                    ]
+                },
+                "title": {
+                    "description": "`json:\"title\"`",
+                    "type": "string"
+                },
+                "updatedAt": {
+                    "type": "string"
+                }
+            }
+        },
+        "domain.TaskStatus": {
+            "type": "string",
+            "enum": [
+                "todo",
+                "in_progress",
+                "done"
+            ],
+            "x-enum-varnames": [
+                "TaskStatusTodo",
+                "TaskStatusInProgress",
+                "TaskStatusDone"
+            ]
+        },
         "handlers.createTaskRequest": {
             "type": "object",
             "required": [
@@ -227,6 +417,28 @@
                 }
             }
         },
+        "handlers.taskAssignRequest": {
+            "type": "object",
+            "required": [
+                "user_id"
+            ],
+            "properties": {
+                "user_id": {
+                    "type": "string"
+                }
+            }
+        },
+        "handlers.taskListResponse": {
+            "type": "object",
+            "properties": {
+                "data": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/domain.Task"
+                    }
+                }
+            }
+        },
         "handlers.taskResponse": {
             "type": "object",
             "properties": {
@@ -240,6 +452,14 @@
                     "type": "string"
                 },
                 "title": {
+                    "type": "string"
+                }
+            }
+        },
+        "handlers.taskUpdateStatusRequest": {
+            "type": "object",
+            "properties": {
+                "status": {
                     "type": "string"
                 }
             }

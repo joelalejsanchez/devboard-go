@@ -1,5 +1,44 @@
 basePath: /api/v1
 definitions:
+  domain.Task:
+    properties:
+      assigneeID:
+        description: '`json:"assinee_id"` // no obliga a crear desde un inicio la
+          referencia'
+        type: string
+      createdAt:
+        type: string
+      createdBy:
+        type: string
+      description:
+        description: '`json:"description"`'
+        type: string
+      id:
+        description: '`json:"id"`'
+        type: string
+      projectID:
+        description: '`json:"project_id"`'
+        type: string
+      status:
+        allOf:
+        - $ref: '#/definitions/domain.TaskStatus'
+        description: '`json:"status"`'
+      title:
+        description: '`json:"title"`'
+        type: string
+      updatedAt:
+        type: string
+    type: object
+  domain.TaskStatus:
+    enum:
+    - todo
+    - in_progress
+    - done
+    type: string
+    x-enum-varnames:
+    - TaskStatusTodo
+    - TaskStatusInProgress
+    - TaskStatusDone
   handlers.createTaskRequest:
     properties:
       project_id:
@@ -35,6 +74,20 @@ definitions:
       version:
         type: string
     type: object
+  handlers.taskAssignRequest:
+    properties:
+      user_id:
+        type: string
+    required:
+    - user_id
+    type: object
+  handlers.taskListResponse:
+    properties:
+      data:
+        items:
+          $ref: '#/definitions/domain.Task'
+        type: array
+    type: object
   handlers.taskResponse:
     properties:
       created_by:
@@ -44,6 +97,11 @@ definitions:
       project_id:
         type: string
       title:
+        type: string
+    type: object
+  handlers.taskUpdateStatusRequest:
+    properties:
+      status:
         type: string
     type: object
   handlers.userResponse:
@@ -100,6 +158,29 @@ paths:
       summary: Health check
       tags:
       - system
+  /projects/{id}/tasks:
+    get:
+      description: Obtiene las tasks de un proyecto
+      parameters:
+      - description: ID del proyecto
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/handlers.taskListResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/utils.ProblemDetails'
+      summary: Get Tasks from Project
+      tags:
+      - tasks
   /tasks:
     post:
       description: Crea una tarea
@@ -145,6 +226,72 @@ paths:
           schema:
             $ref: '#/definitions/utils.ProblemDetails'
       summary: Get Task
+      tags:
+      - tasks
+  /tasks/{id}/assign:
+    put:
+      description: Asigna una tarea a un usuario
+      parameters:
+      - description: Datos de la tarea
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/handlers.taskAssignRequest'
+      - description: ID de la tarea
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/handlers.taskListResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/utils.ProblemDetails'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/utils.ProblemDetails'
+      summary: Asignar tarea a usuario
+      tags:
+      - tasks
+  /tasks/{id}/status:
+    put:
+      description: actualiza el estado de tarae
+      parameters:
+      - description: Datos de la tarea
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/handlers.taskUpdateStatusRequest'
+      - description: ID de la tarea
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/handlers.taskListResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/utils.ProblemDetails'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/utils.ProblemDetails'
+      summary: actualiza el estado de tarea
       tags:
       - tasks
   /users:

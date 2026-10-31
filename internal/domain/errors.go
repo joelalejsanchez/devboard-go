@@ -3,16 +3,16 @@ package domain
 import "errors"
 
 var (
-	// ErrNotFound no encontrado
+	// ErrNotFound indicates that a requested resource does not exist.
 	ErrNotFound = errors.New("recurso no encontrado")
-	// ErrAlreadyExists ya existe
+	// ErrAlreadyExists indicates that a resource with the same identity already exists.
 	ErrAlreadyExists = errors.New("el recurso ya existe")
-	// ErrUnauthorized no autorizado
+	// ErrUnauthorized indicates that the request is not authenticated.
 	ErrUnauthorized = errors.New("no autorizado")
-	// ErrForbidden acceso prohibido
+	// ErrForbidden indicates that the authenticated caller lacks permission.
 	ErrForbidden = errors.New("acceso prohibido")
-	// ErrInvalidInput entrada invalida
+	// ErrInvalidInput indicates that the input is invalid.
 	ErrInvalidInput = errors.New("datos de entrada inválidos")
-	// ErrInternal error interno
+	// ErrInternal indicates that an internal error occurred.
 	ErrInternal = errors.New("error interno")
 )

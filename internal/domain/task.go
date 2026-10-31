@@ -5,25 +5,25 @@ import (
 	"time"
 )
 
-// Task representa una tarea del tablero
+// Task represents a task on the board.
 type Task struct {
 	ID          string     // `json:"id"`
 	ProjectID   string     // `json:"project_id"`
 	Title       string     // `json:"title"`
 	Description string     // `json:"description"`
 	Status      TaskStatus // `json:"status"`
-	AssigneeID  *string    // `json:"assinee_id"` // no obliga a crear desde un inicio la referencia
+	AssigneeID  *string    // The assignee is optional when a task is created.
 	CreatedBy   string
 	CreatedAt   time.Time
 	UpdatedAt   time.Time
 }
 
-// IsValid Valida los valores
+// IsValid reports whether the task has valid values.
 func (t *Task) IsValid() bool {
 	return t.Title != "" && t.ProjectID != ""
 }
 
-// AssignTo asigna una tarea a un usuario
+// AssignTo assigns the task to a user.
 func (t *Task) AssignTo(userID string) error {
 	if t.Status == TaskStatusDone {
 		return ErrTaskNotAssignable
@@ -34,7 +34,7 @@ func (t *Task) AssignTo(userID string) error {
 	return nil
 }
 
-// MarkAsDone marca la tarea como completada
+// MarkAsDone marks the task as complete.
 func (t *Task) MarkAsDone() error {
 	if t.Status == TaskStatusDone {
 		return ErrTaskAlreadyDone
@@ -44,7 +44,7 @@ func (t *Task) MarkAsDone() error {
 	return nil
 }
 
-// MoveToStatus cambia el estado de una tarea
+// MoveToStatus changes the task status.
 func (t *Task) MoveToStatus(status TaskStatus) error {
 	if !status.IsValid() {
 		return ErrTaskNewStatusInvalid
@@ -54,7 +54,7 @@ func (t *Task) MoveToStatus(status TaskStatus) error {
 	return nil
 }
 
-// NewTask crea una nueva tarea
+// NewTask creates a task with the supplied project, title, description, and creator.
 func NewTask(projectID, title, description, createdBy string) *Task {
 	now := time.Now()
 	return &Task{
@@ -69,10 +69,10 @@ func NewTask(projectID, title, description, createdBy string) *Task {
 }
 
 var (
-	// ErrTaskNewStatusInvalid estado invalido
+	// ErrTaskNewStatusInvalid indicates that a requested task status is invalid.
 	ErrTaskNewStatusInvalid = errors.New("el nuevo estado es invalido")
-	// ErrTaskAlreadyDone tarea completada
+	// ErrTaskAlreadyDone indicates that the task is already complete.
 	ErrTaskAlreadyDone = errors.New("la tarea ya está completada")
-	// ErrTaskNotAssignable no se puede asignar en estado dnne
+	// ErrTaskNotAssignable indicates that the task cannot be assigned in its current state.
 	ErrTaskNotAssignable = errors.New("la tarea no puede asignarse en este estado")
 )

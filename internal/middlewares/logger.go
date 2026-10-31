@@ -1,4 +1,4 @@
-// Package middlewares - configura logger y interceptor
+// Package middlewares provides HTTP middleware helpers.
 package middlewares
 
 import (
@@ -13,7 +13,7 @@ type responseRecorder struct {
 	written    bool
 }
 
-// WriteHeader funcion
+// WriteHeader records the status code and writes it to the wrapped response.
 func (rr *responseRecorder) WriteHeader(code int) {
 	if !rr.written {
 		rr.statusCode = code
@@ -22,7 +22,7 @@ func (rr *responseRecorder) WriteHeader(code int) {
 	}
 }
 
-// Write funcion
+// Write writes response data and records the number of bytes written.
 func (rr *responseRecorder) Write(b []byte) (int, error) {
 	if !rr.written {
 		rr.WriteHeader(http.StatusOK)
@@ -39,7 +39,7 @@ func newResponseRecorder(w http.ResponseWriter) *responseRecorder {
 	}
 }
 
-// Logger middleware que configura los logs
+// Logger logs request method, path, status code, and response size.
 func Logger(logger *slog.Logger) func(http.Handler) http.Handler {
 	return func(next http.Handler) http.Handler {
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {

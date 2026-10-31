@@ -1,4 +1,4 @@
-// Package handlers - endpoints de health
+// Package handlers provides HTTP handlers for the API.
 package handlers
 
 import (
@@ -7,20 +7,20 @@ import (
 	"time"
 )
 
-// HealthHandler struct
+// HealthHandler reports the health of the service.
 type HealthHandler struct{}
 
 type healthResponse struct {
 	Status  string `json:"status"`
 	Version string `json:"version"`
-}
+} // @name HealthResponse
 
-// ServeHTTP Devuelve el estado del servidor
+// ServeHTTP writes the health status as a JSON response.
 // @Summary Health check
-// @Description Verifica que el servidor este ejecutandose y respondiendo
+// @Description Reports whether the server is running and responding.
 // @Tags system
 // @Produce json
-// @Success 200 {object} healthResponse
+// @Success 200 {object} HealthResponse
 // @Router /health [get]
 func (h *HealthHandler) ServeHTTP(w http.ResponseWriter, _ *http.Request) {
 	time.Sleep(time.Millisecond * 200)
@@ -29,7 +29,7 @@ func (h *HealthHandler) ServeHTTP(w http.ResponseWriter, _ *http.Request) {
 		Version: "1.0.0",
 	}
 	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(http.StatusOK) // opcional
+	w.WriteHeader(http.StatusOK) // Optional because encoding/json writes a status if none is set.
 
 	err := json.NewEncoder(w).Encode(res)
 	if err != nil {
@@ -37,7 +37,7 @@ func (h *HealthHandler) ServeHTTP(w http.ResponseWriter, _ *http.Request) {
 	}
 }
 
-// NewHealthHandler retorna HealthHandler
+// NewHealthHandler creates a health handler.
 func NewHealthHandler() *HealthHandler {
 	return &HealthHandler{}
 }

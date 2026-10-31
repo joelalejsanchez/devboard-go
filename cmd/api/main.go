@@ -22,7 +22,7 @@ import (
 
 // @title DEVBOARD API
 // @version 0.1
-// @description API REST para gestión de proyectos
+// @description REST API for project management.
 // @contact.name Soporte Devboard Joel
 // @host localhost:8000
 // @BasePath /api/v1

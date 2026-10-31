@@ -1,4 +1,4 @@
-// Package server - configuraciones de servidor
+// Package server configures and runs the HTTP server.
 package server
 
 import (
@@ -14,7 +14,7 @@ type config struct {
 	logger            slog.Logger
 }
 
-// defaultConfig configuracion por defecto
+// defaultConfig returns the default server configuration.
 func defaultConfig() config {
 	return config{
 		readTimeout:       10 * time.Second,
@@ -25,38 +25,38 @@ func defaultConfig() config {
 	}
 }
 
-// Option funcion que modifica la configuracion
+// Option configures a server.
 type Option func(*config)
 
-// WithReadHeaderTimeout configura timeout de lectura de header
+// WithReadHeaderTimeout sets the maximum time to read request headers.
 func WithReadHeaderTimeout(duration time.Duration) Option {
 	return func(c *config) {
 		c.readHeaderTimeout = duration
 	}
 }
 
-// WithReadTimeout configura timeout de lectura
+// WithReadTimeout sets the maximum duration for reading the entire request.
 func WithReadTimeout(duration time.Duration) Option {
 	return func(c *config) {
 		c.readTimeout = duration
 	}
 }
 
-// WithWriteTimeout configura timeout de escritura
+// WithWriteTimeout sets the maximum duration before a response write times out.
 func WithWriteTimeout(duration time.Duration) Option {
 	return func(c *config) {
 		c.writeTimeout = duration
 	}
 }
 
-// WithIdleTimeout configura timeout de inactividad de conexion
+// WithIdleTimeout sets the maximum time to wait for the next request on a connection.
 func WithIdleTimeout(duration time.Duration) Option {
 	return func(c *config) {
 		c.idleTimeout = duration
 	}
 }
 
-// WithLogger configura el logger del servidor
+// WithLogger sets the logger used by the server.
 func WithLogger(logger *slog.Logger) Option {
 	return func(c *config) {
 		c.logger = *logger

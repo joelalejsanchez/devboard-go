@@ -1,3 +1,4 @@
+// Package handlers provides HTTP handlers for the API.
 package handlers
 
 import (
@@ -10,14 +11,14 @@ import (
 	"net/http"
 )
 
-// UserHandler struct, se comporta como controller
+// UserHandler handles user-related HTTP requests.
 type UserHandler struct {
 	usecase   *usecases.UserUseCase
 	validator *validator.Validator
 	logger    *slog.Logger
 }
 
-// NewUserHandler crea un nuevo handler de usuario
+// NewUserHandler creates a user handler with its dependencies.
 func NewUserHandler(uc *usecases.UserUseCase, v *validator.Validator, l *slog.Logger) *UserHandler {
 	return &UserHandler{
 		usecase:   uc,
@@ -30,22 +31,22 @@ type createUserRequest struct {
 	Email    string `json:"email" validate:"required,email"`
 	Name     string `json:"name" validate:"required,min=2,max=100"`
 	Password string `json:"password" validate:"required,min=8"`
-}
+} // @name CreateUserRequest
 
 type userResponse struct {
 	ID    string `json:"id"`
 	Email string `json:"email"`
 	Name  string `json:"name"`
-}
+} // @name UserResponse
 
-// Create crea un usuario
+// Create creates a user.
 // @Summary Create User
-// @Description Crea un usuario
+// @Description Creates a user.
 // @Tags users
 // @Accepts json
 // @Produce json
-// @Param request body createUserRequest true "Datos del usuario"
-// @Success 201 {object} userResponse
+// @Param request body createUserRequest true "User data"
+// @Success 201 {object} UserResponse
 // @Failure 400 {object} utils.ProblemDetails
 // @Router /users [post]
 func (h *UserHandler) Create(w http.ResponseWriter, r *http.Request) {
@@ -78,14 +79,14 @@ func (h *UserHandler) Create(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-// Get obtiene un usuario por id
+// Get returns a user by ID.
 //
 // @Summary Get User
-// @Description Obtiene un usuario por id
+// @Description Returns a user by ID.
 // @Tags users
 // @Produce json
-// @Param id path string true "ID del usuario"
-// @Success 200 {object} userResponse
+// @Param id path string true "User ID"
+// @Success 200 {object} UserResponse
 // @Failure 400 {object} utils.ProblemDetails
 // @Router /users/{id} [get]
 func (h *UserHandler) Get(w http.ResponseWriter, r *http.Request) {

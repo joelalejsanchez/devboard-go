@@ -1,4 +1,4 @@
-// Package usecases - caso de uso para task
+// Package usecases coordinates application workflows.
 package usecases
 
 import (
@@ -7,25 +7,25 @@ import (
 	"fmt"
 )
 
-// TaskCommandRepository contrato de escritura CQRS
+// TaskCommandRepository defines write operations for tasks.
 type TaskCommandRepository interface {
 	Create(ctx context.Context, task *domain.Task) error
 	Update(ctx context.Context, task *domain.Task) error
 }
 
-// TaskQueryRepository contrato de lectura CQRS
+// TaskQueryRepository defines read operations for tasks.
 type TaskQueryRepository interface {
 	GetByID(ctx context.Context, id string) (*domain.Task, error)
 	ListByProject(ctx context.Context, projectID string) ([]*domain.Task, error)
 }
 
-// TaskUseCase struct
+// TaskUseCase coordinates task-related business workflows.
 type TaskUseCase struct {
 	commands TaskCommandRepository
 	queries  TaskQueryRepository
 }
 
-// NewTaskUseCase constructor de TaskUseCase
+// NewTaskUseCase creates a task use case with command and query repositories.
 func NewTaskUseCase(commands TaskCommandRepository, queries TaskQueryRepository) *TaskUseCase {
 	return &TaskUseCase{
 		commands: commands,
@@ -33,7 +33,7 @@ func NewTaskUseCase(commands TaskCommandRepository, queries TaskQueryRepository)
 	}
 }
 
-// CreateTask crea una tarea
+// CreateTask creates a task and stores it through the command repository.
 func (uc *TaskUseCase) CreateTask(ctx context.Context, projectID, title, description, createdBy string) (*domain.Task, error) {
 	task := domain.NewTask(projectID, title, description, createdBy)
 
@@ -44,7 +44,7 @@ func (uc *TaskUseCase) CreateTask(ctx context.Context, projectID, title, descrip
 	return task, nil
 }
 
-// ListProjectTasks Obtiene todas las tareas
+// ListProjectTasks returns all tasks for a project.
 func (uc *TaskUseCase) ListProjectTasks(ctx context.Context, projectID string) ([]*domain.Task, error) {
 	tasks, err := uc.queries.ListByProject(ctx, projectID)
 	if err != nil {
@@ -53,7 +53,7 @@ func (uc *TaskUseCase) ListProjectTasks(ctx context.Context, projectID string) (
 	return tasks, nil
 }
 
-// AssignTask asigna una tarea a un usuario
+// AssignTask assigns a task to a user.
 func (uc *TaskUseCase) AssignTask(ctx context.Context, taskID, userID string) (*domain.Task, error) {
 	task, err := uc.queries.GetByID(ctx, taskID)
 	if err != nil {
@@ -72,7 +72,7 @@ func (uc *TaskUseCase) AssignTask(ctx context.Context, taskID, userID string) (*
 	return task, nil
 }
 
-// UpdateStatus asigna una tarea a un usuario
+// UpdateStatus changes a task's status.
 func (uc *TaskUseCase) UpdateStatus(ctx context.Context, taskID string, status domain.TaskStatus) (*domain.Task, error) {
 	task, err := uc.queries.GetByID(ctx, taskID)
 	if err != nil {
@@ -91,7 +91,7 @@ func (uc *TaskUseCase) UpdateStatus(ctx context.Context, taskID string, status d
 	return task, nil
 }
 
-// GetTask obtiene tarea por id
+// GetTask returns a task by ID.
 func (uc *TaskUseCase) GetTask(ctx context.Context, id string) (*domain.Task, error) {
 	task, err := uc.queries.GetByID(ctx, id)
 	if err != nil {

@@ -1,4 +1,4 @@
-// Package notification - interfaces de notificacion
+// Package notification defines notification interfaces and implementations.
 package notification
 
 import (
@@ -6,17 +6,17 @@ import (
 	"log/slog"
 )
 
-// Notifier contrato de notificacion
+// Notifier sends a notification to a user.
 type Notifier interface {
 	Notify(ctx context.Context, userID string, message string) error
 }
 
-// LogNotifier Notifier de logs
+// LogNotifier writes notifications to the application logger.
 type LogNotifier struct {
 	logger *slog.Logger
 }
 
-// Notify envio de notificaciones mediante logs
+// Notify logs a notification for the specified user.
 func (n *LogNotifier) Notify(ctx context.Context, userID string, message string) error {
 	n.logger.InfoContext(ctx, "notificacion enviada",
 		slog.String("user_id", userID),
@@ -26,15 +26,15 @@ func (n *LogNotifier) Notify(ctx context.Context, userID string, message string)
 	return nil
 }
 
-// NewLogNotifier constructor de LogNotifier
+// NewLogNotifier creates a logger-backed notifier.
 func NewLogNotifier(logger *slog.Logger) *LogNotifier {
 	return &LogNotifier{logger: logger}
 }
 
-// NoOpNotifier para pruebas
+// NoOpNotifier discards notifications.
 type NoOpNotifier struct{}
 
-// Notify envio nulo de notificacion
+// Notify discards the notification and returns no error.
 func (n *NoOpNotifier) Notify(_ context.Context, _ string, _ string) error {
 	return nil
 }

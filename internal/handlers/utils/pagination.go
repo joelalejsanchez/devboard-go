@@ -1,4 +1,4 @@
-// Package utils - utilidades de paginacion
+// Package utils provides HTTP handler utilities.
 package utils
 
 import (
@@ -6,7 +6,7 @@ import (
 	"strconv"
 )
 
-// PaginationParams structs
+// PaginationParams contains cursor-based pagination options.
 type PaginationParams struct {
 	Cursor string
 	Limit  int
@@ -17,7 +17,7 @@ const (
 	maxLimit     = 100
 )
 
-// ParsePagination parsea campos de paginacion
+// ParsePagination parses cursor and limit query parameters from a request.
 func ParsePagination(r *http.Request) PaginationParams {
 	cursor := r.URL.Query().Get("cursor")
 	limit := defaultLimit
@@ -38,7 +38,7 @@ func ParsePagination(r *http.Request) PaginationParams {
 	}
 }
 
-// PaginatedResponse paginado estandard con cursor
+// PaginatedResponse contains a page of data and cursor pagination metadata.
 type PaginatedResponse[T any] struct {
 	Data       []T    `json:"data"`
 	NextCursor string `json:"next_cursor,omitempty"`

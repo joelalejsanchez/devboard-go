@@ -19,7 +19,7 @@ const docTemplate = `{
     "paths": {
         "/health": {
             "get": {
-                "description": "Verifica que el servidor este ejecutandose y respondiendo",
+                "description": "Reports whether the server is running and responding.",
                 "produces": [
                     "application/json"
                 ],
@@ -31,7 +31,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/internal_handlers.healthResponse"
+                            "$ref": "#/definitions/HealthResponse"
                         }
                     }
                 }
@@ -39,7 +39,7 @@ const docTemplate = `{
         },
         "/projects/{id}/tasks": {
             "get": {
-                "description": "Obtiene las tasks de un proyecto",
+                "description": "Returns the tasks that belong to a project.",
                 "produces": [
                     "application/json"
                 ],
@@ -50,7 +50,7 @@ const docTemplate = `{
                 "parameters": [
                     {
                         "type": "string",
-                        "description": "ID del proyecto",
+                        "description": "Project ID",
                         "name": "id",
                         "in": "path",
                         "required": true
@@ -60,13 +60,13 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/devboard_internal_handlers_utils.PaginatedResponse-internal_handlers_taskResponse"
+                            "$ref": "#/definitions/PaginatedResponse-TaskResponse"
                         }
                     },
                     "404": {
                         "description": "Not Found",
                         "schema": {
-                            "$ref": "#/definitions/devboard_internal_handlers_utils.ProblemDetails"
+                            "$ref": "#/definitions/ProblemDetails"
                         }
                     }
                 }
@@ -74,7 +74,7 @@ const docTemplate = `{
         },
         "/tasks": {
             "post": {
-                "description": "Crea una tarea",
+                "description": "Creates a task.",
                 "produces": [
                     "application/json"
                 ],
@@ -84,12 +84,12 @@ const docTemplate = `{
                 "summary": "Create Task",
                 "parameters": [
                     {
-                        "description": "Datos de la tarea",
+                        "description": "Task data",
                         "name": "request",
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/internal_handlers.createTaskRequest"
+                            "$ref": "#/definitions/CreateTaskRequest"
                         }
                     }
                 ],
@@ -97,13 +97,13 @@ const docTemplate = `{
                     "201": {
                         "description": "Created",
                         "schema": {
-                            "$ref": "#/definitions/internal_handlers.taskResponse"
+                            "$ref": "#/definitions/TaskResponse"
                         }
                     },
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/devboard_internal_handlers_utils.ProblemDetails"
+                            "$ref": "#/definitions/ProblemDetails"
                         }
                     }
                 }
@@ -111,7 +111,7 @@ const docTemplate = `{
         },
         "/tasks/{id}": {
             "get": {
-                "description": "Obtiene un task por id",
+                "description": "Returns a task by its ID.",
                 "produces": [
                     "application/json"
                 ],
@@ -122,7 +122,7 @@ const docTemplate = `{
                 "parameters": [
                     {
                         "type": "string",
-                        "description": "ID de la tarea",
+                        "description": "Task ID",
                         "name": "id",
                         "in": "path",
                         "required": true
@@ -132,13 +132,13 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/internal_handlers.taskResponse"
+                            "$ref": "#/definitions/TaskResponse"
                         }
                     },
                     "404": {
                         "description": "Not Found",
                         "schema": {
-                            "$ref": "#/definitions/devboard_internal_handlers_utils.ProblemDetails"
+                            "$ref": "#/definitions/ProblemDetails"
                         }
                     }
                 }
@@ -146,27 +146,27 @@ const docTemplate = `{
         },
         "/tasks/{id}/assign": {
             "put": {
-                "description": "Asigna una tarea a un usuario",
+                "description": "Assigns a task to a user.",
                 "produces": [
                     "application/json"
                 ],
                 "tags": [
                     "tasks"
                 ],
-                "summary": "Asignar tarea a usuario",
+                "summary": "Assign a task to a user",
                 "parameters": [
                     {
-                        "description": "ID del asignado",
+                        "description": "Assignee data",
                         "name": "request",
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/internal_handlers.assignTaskRequest"
+                            "$ref": "#/definitions/AssignTaskRequest"
                         }
                     },
                     {
                         "type": "string",
-                        "description": "ID de la tarea",
+                        "description": "Task ID",
                         "name": "id",
                         "in": "path",
                         "required": true
@@ -176,13 +176,13 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/internal_handlers.taskResponse"
+                            "$ref": "#/definitions/TaskResponse"
                         }
                     },
                     "404": {
                         "description": "Not Found",
                         "schema": {
-                            "$ref": "#/definitions/devboard_internal_handlers_utils.ProblemDetails"
+                            "$ref": "#/definitions/ProblemDetails"
                         }
                     }
                 }
@@ -190,27 +190,27 @@ const docTemplate = `{
         },
         "/tasks/{id}/status": {
             "put": {
-                "description": "actualiza el estado de tarae",
+                "description": "Changes the status of a task.",
                 "produces": [
                     "application/json"
                 ],
                 "tags": [
                     "tasks"
                 ],
-                "summary": "actualiza el estado de tarea",
+                "summary": "Update a task status",
                 "parameters": [
                     {
-                        "description": "Datos de la tarea",
+                        "description": "Task status",
                         "name": "request",
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/internal_handlers.updateStatusRequest"
+                            "$ref": "#/definitions/UpdateStatusRequest"
                         }
                     },
                     {
                         "type": "string",
-                        "description": "ID de la tarea",
+                        "description": "Task ID",
                         "name": "id",
                         "in": "path",
                         "required": true
@@ -220,13 +220,13 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/internal_handlers.taskResponse"
+                            "$ref": "#/definitions/TaskResponse"
                         }
                     },
                     "404": {
                         "description": "Not Found",
                         "schema": {
-                            "$ref": "#/definitions/devboard_internal_handlers_utils.ProblemDetails"
+                            "$ref": "#/definitions/ProblemDetails"
                         }
                     }
                 }
@@ -234,7 +234,7 @@ const docTemplate = `{
         },
         "/users": {
             "post": {
-                "description": "Crea un usuario",
+                "description": "Creates a user.",
                 "produces": [
                     "application/json"
                 ],
@@ -244,12 +244,12 @@ const docTemplate = `{
                 "summary": "Create User",
                 "parameters": [
                     {
-                        "description": "Datos del usuario",
+                        "description": "User data",
                         "name": "request",
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/internal_handlers.createUserRequest"
+                            "$ref": "#/definitions/CreateUserRequest"
                         }
                     }
                 ],
@@ -257,13 +257,13 @@ const docTemplate = `{
                     "201": {
                         "description": "Created",
                         "schema": {
-                            "$ref": "#/definitions/internal_handlers.userResponse"
+                            "$ref": "#/definitions/UserResponse"
                         }
                     },
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/devboard_internal_handlers_utils.ProblemDetails"
+                            "$ref": "#/definitions/ProblemDetails"
                         }
                     }
                 }
@@ -271,7 +271,7 @@ const docTemplate = `{
         },
         "/users/{id}": {
             "get": {
-                "description": "Obtiene un usuario por id",
+                "description": "Returns a user by ID.",
                 "produces": [
                     "application/json"
                 ],
@@ -282,7 +282,7 @@ const docTemplate = `{
                 "parameters": [
                     {
                         "type": "string",
-                        "description": "ID del usuario",
+                        "description": "User ID",
                         "name": "id",
                         "in": "path",
                         "required": true
@@ -292,13 +292,13 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/internal_handlers.userResponse"
+                            "$ref": "#/definitions/UserResponse"
                         }
                     },
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/devboard_internal_handlers_utils.ProblemDetails"
+                            "$ref": "#/definitions/ProblemDetails"
                         }
                     }
                 }
@@ -306,74 +306,7 @@ const docTemplate = `{
         }
     },
     "definitions": {
-        "devboard_internal_domain.TaskStatus": {
-            "type": "string",
-            "enum": [
-                "todo",
-                "in_progress",
-                "done"
-            ],
-            "x-enum-varnames": [
-                "TaskStatusTodo",
-                "TaskStatusInProgress",
-                "TaskStatusDone"
-            ]
-        },
-        "devboard_internal_handlers_utils.PaginatedResponse-internal_handlers_taskResponse": {
-            "type": "object",
-            "properties": {
-                "data": {
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/internal_handlers.taskResponse"
-                    }
-                },
-                "has_more": {
-                    "type": "boolean"
-                },
-                "next_cursor": {
-                    "type": "string"
-                }
-            }
-        },
-        "devboard_internal_handlers_utils.ProblemDetails": {
-            "type": "object",
-            "properties": {
-                "detail": {
-                    "type": "string"
-                },
-                "errors": {
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/devboard_internal_validator.ValidationError"
-                    }
-                },
-                "instance": {
-                    "type": "string"
-                },
-                "status": {
-                    "type": "integer"
-                },
-                "title": {
-                    "type": "string"
-                },
-                "type": {
-                    "type": "string"
-                }
-            }
-        },
-        "devboard_internal_validator.ValidationError": {
-            "type": "object",
-            "properties": {
-                "field": {
-                    "type": "string"
-                },
-                "message": {
-                    "type": "string"
-                }
-            }
-        },
-        "internal_handlers.assignTaskRequest": {
+        "AssignTaskRequest": {
             "type": "object",
             "required": [
                 "assignee_id"
@@ -384,7 +317,7 @@ const docTemplate = `{
                 }
             }
         },
-        "internal_handlers.createTaskRequest": {
+        "CreateTaskRequest": {
             "type": "object",
             "required": [
                 "project_id",
@@ -405,7 +338,7 @@ const docTemplate = `{
                 }
             }
         },
-        "internal_handlers.createUserRequest": {
+        "CreateUserRequest": {
             "type": "object",
             "required": [
                 "email",
@@ -427,7 +360,7 @@ const docTemplate = `{
                 }
             }
         },
-        "internal_handlers.healthResponse": {
+        "HealthResponse": {
             "type": "object",
             "properties": {
                 "status": {
@@ -438,7 +371,50 @@ const docTemplate = `{
                 }
             }
         },
-        "internal_handlers.taskResponse": {
+        "PaginatedResponse-TaskResponse": {
+            "type": "object",
+            "properties": {
+                "data": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/TaskResponse"
+                    }
+                },
+                "has_more": {
+                    "type": "boolean"
+                },
+                "next_cursor": {
+                    "type": "string"
+                }
+            }
+        },
+        "ProblemDetails": {
+            "type": "object",
+            "properties": {
+                "detail": {
+                    "type": "string"
+                },
+                "errors": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/ValidationError"
+                    }
+                },
+                "instance": {
+                    "type": "string"
+                },
+                "status": {
+                    "type": "integer"
+                },
+                "title": {
+                    "type": "string"
+                },
+                "type": {
+                    "type": "string"
+                }
+            }
+        },
+        "TaskResponse": {
             "type": "object",
             "properties": {
                 "assinee_id": {
@@ -460,7 +436,7 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "status": {
-                    "$ref": "#/definitions/devboard_internal_domain.TaskStatus"
+                    "$ref": "#/definitions/TaskStatus"
                 },
                 "title": {
                     "type": "string"
@@ -470,18 +446,31 @@ const docTemplate = `{
                 }
             }
         },
-        "internal_handlers.updateStatusRequest": {
+        "TaskStatus": {
+            "type": "string",
+            "enum": [
+                "todo",
+                "in_progress",
+                "done"
+            ],
+            "x-enum-varnames": [
+                "TaskStatusTodo",
+                "TaskStatusInProgress",
+                "TaskStatusDone"
+            ]
+        },
+        "UpdateStatusRequest": {
             "type": "object",
             "required": [
                 "status"
             ],
             "properties": {
                 "status": {
-                    "$ref": "#/definitions/devboard_internal_domain.TaskStatus"
+                    "$ref": "#/definitions/TaskStatus"
                 }
             }
         },
-        "internal_handlers.userResponse": {
+        "UserResponse": {
             "type": "object",
             "properties": {
                 "email": {
@@ -491,6 +480,17 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "name": {
+                    "type": "string"
+                }
+            }
+        },
+        "ValidationError": {
+            "type": "object",
+            "properties": {
+                "field": {
+                    "type": "string"
+                },
+                "message": {
                     "type": "string"
                 }
             }
@@ -505,7 +505,7 @@ var SwaggerInfo = &swag.Spec{
 	BasePath:         "/api/v1",
 	Schemes:          []string{},
 	Title:            "DEVBOARD API",
-	Description:      "API REST para gestión de proyectos",
+	Description:      "REST API for project management.",
 	InfoInstanceName: "swagger",
 	SwaggerTemplate:  docTemplate,
 	LeftDelim:        "{{",

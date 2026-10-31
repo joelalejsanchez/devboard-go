@@ -1,4 +1,4 @@
-// Package middlewares - Recuperacion de servidor ante panics
+// Package middlewares provides HTTP middleware helpers.
 package middlewares
 
 import (
@@ -7,7 +7,7 @@ import (
 	"runtime/debug"
 )
 
-// Recovery recupera el servidor de un panic y loggea
+// Recovery recovers from panics in HTTP handlers and logs the panic.
 func Recovery(logger *slog.Logger) func(http.Handler) http.Handler {
 	return func(next http.Handler) http.Handler {
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {

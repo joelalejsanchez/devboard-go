@@ -1,4 +1,4 @@
-// Package handlers - handlers de task
+// Package handlers provides HTTP handlers for the API.
 package handlers
 
 import (
@@ -12,14 +12,14 @@ import (
 	"time"
 )
 
-// TaskHandler struct
+// TaskHandler handles task-related HTTP requests.
 type TaskHandler struct {
 	usecase   *usecases.TaskUseCase
 	validator *validator.Validator
 	logger    *slog.Logger
 }
 
-// NewTaskHandler constructor
+// NewTaskHandler creates a task handler with its dependencies.
 func NewTaskHandler(uc *usecases.TaskUseCase, v *validator.Validator, l *slog.Logger) *TaskHandler {
 	return &TaskHandler{
 		usecase:   uc,
@@ -28,12 +28,12 @@ func NewTaskHandler(uc *usecases.TaskUseCase, v *validator.Validator, l *slog.Lo
 	}
 }
 
-// createTaskRequest struct
+// createTaskRequest contains the fields required to create a task.
 type createTaskRequest struct {
 	ProjectID   string `json:"project_id" validate:"required"`
 	Title       string `json:"title" validate:"required,min=3,max=200"`
 	Description string `json:"description" validate:"max=2000"`
-}
+} // @name CreateTaskRequest
 
 type taskResponse struct {
 	ID          string            `json:"id"`
@@ -45,9 +45,9 @@ type taskResponse struct {
 	CreatedBy   string            `json:"created_by"`
 	CreatedAt   time.Time         `json:"created_at"`
 	UpdatedAt   time.Time         `json:"updated_at"`
-}
+} // @name TaskResponse
 
-// toTaskResponse convierte entidad de dominio a estructura de respuesta
+// toTaskResponse converts a domain task into its API response representation.
 func toTaskResponse(task *domain.Task) taskResponse {
 	return taskResponse{
 		ID:          task.ID,
@@ -62,14 +62,14 @@ func toTaskResponse(task *domain.Task) taskResponse {
 	}
 }
 
-// Create crear tarea
+// Create creates a task.
 // @Summary Create Task
-// @Description Crea una tarea
+// @Description Creates a task.
 // @Tags tasks
 // @Accepts json
 // @Produce json
-// @Param request body createTaskRequest true "Datos de la tarea"
-// @Success 201 {object} taskResponse
+// @Param request body createTaskRequest true "Task data"
+// @Success 201 {object} TaskResponse
 // @Failure 400 {object} utils.ProblemDetails
 // @Router /tasks [post]
 func (h *TaskHandler) Create(w http.ResponseWriter, r *http.Request) {
@@ -94,13 +94,13 @@ func (h *TaskHandler) Create(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-// GetByID get task by id
+// GetByID returns a task by its ID.
 // @Summary Get Task
-// @Description Obtiene un task por id
+// @Description Returns a task by its ID.
 // @Tags tasks
 // @Produce json
-// @Param id path string true "ID de la tarea"
-// @Success 200 {object} taskResponse
+// @Param id path string true "Task ID"
+// @Success 200 {object} TaskResponse
 // @Failure 404 {object} utils.ProblemDetails
 // @Router /tasks/{id} [get]
 func (h *TaskHandler) GetByID(w http.ResponseWriter, r *http.Request) {
@@ -116,12 +116,12 @@ func (h *TaskHandler) GetByID(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-// ListByProject obtiene tareas de un proyecto
+// ListByProject returns the tasks for a project.
 // @Summary Get Tasks from Project
-// @Description Obtiene las tasks de un proyecto
+// @Description Returns the tasks that belong to a project.
 // @Tags tasks
 // @Produce json
-// @Param id path string true "ID del proyecto"
+// @Param id path string true "Project ID"
 // @Success 200 {object} utils.PaginatedResponse[taskResponse]
 // @Failure 404 {object} utils.ProblemDetails
 // @Router /projects/{id}/tasks [get]
@@ -148,17 +148,17 @@ func (h *TaskHandler) ListByProject(w http.ResponseWriter, r *http.Request) {
 
 type assignTaskRequest struct {
 	AssigneeID string `json:"assignee_id" validate:"required,uuid7"`
-}
+} // @name AssignTaskRequest
 
-// Assign asigna la tarea a un usuario
-// @Summary Asignar tarea a usuario
-// @Description Asigna una tarea a un usuario
+// Assign assigns a task to a user.
+// @Summary Assign a task to a user
+// @Description Assigns a task to a user.
 // @Tags tasks
 // @Accepts json
 // @Produce json
-// @Param request body assignTaskRequest true "ID del asignado"
-// @Param id path string true "ID de la tarea"
-// @Success 200 {object} taskResponse
+// @Param request body assignTaskRequest true "Assignee data"
+// @Param id path string true "Task ID"
+// @Success 200 {object} TaskResponse
 // @Failure 404 {object} utils.ProblemDetails
 // @Router /tasks/{id}/assign [put]
 func (h *TaskHandler) Assign(w http.ResponseWriter, r *http.Request) {
@@ -189,17 +189,17 @@ func (h *TaskHandler) Assign(w http.ResponseWriter, r *http.Request) {
 
 type updateStatusRequest struct {
 	Status domain.TaskStatus `json:"status" validate:"required"`
-}
+} // @name UpdateStatusRequest
 
-// UpdateStatus actualiza el estado
-// @Summary actualiza el estado de tarea
-// @Description actualiza el estado de tarae
+// UpdateStatus changes a task's status.
+// @Summary Update a task status
+// @Description Changes the status of a task.
 // @Tags tasks
 // @Accepts json
 // @Produce json
-// @Param request body updateStatusRequest true "Datos de la tarea"
-// @Param id path string true "ID de la tarea"
-// @Success 200 {object} taskResponse
+// @Param request body updateStatusRequest true "Task status"
+// @Param id path string true "Task ID"
+// @Success 200 {object} TaskResponse
 // @Failure 404 {object} utils.ProblemDetails
 // @Router /tasks/{id}/status [put]
 func (h *TaskHandler) UpdateStatus(w http.ResponseWriter, r *http.Request) {

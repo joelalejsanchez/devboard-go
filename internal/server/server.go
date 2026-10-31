@@ -1,4 +1,4 @@
-// Package server - paquete para creacion y configuracion de servidor
+// Package server configures and runs the HTTP server.
 package server
 
 import (
@@ -12,14 +12,14 @@ import (
 	"time"
 )
 
-// Server struct
+// Server serves HTTP requests and manages the server lifecycle.
 type Server struct {
 	httpServer *http.Server
 	mux        *http.ServeMux
 	logger     *slog.Logger
 }
 
-// Start inicia el servidor con un graceful shutdown
+// Start runs the HTTP server and shuts it down gracefully when the context is canceled.
 func (s *Server) Start() error {
 	// Crear canal para notificar cuando se llama a apagar el proceso.
 	// SIGTERM cierre pasivo
@@ -57,27 +57,27 @@ func (s *Server) Start() error {
 	return nil
 }
 
-// RegisterRoute gestiona una ruta
+// RegisterRoute registers an HTTP handler for the given pattern.
 func (s *Server) RegisterRoute(pattern string, h http.Handler) {
 	s.mux.Handle(pattern, h)
 }
 
-// ServeHTTP cumple con endpoint
+// ServeHTTP dispatches a request to the registered handlers.
 func (s *Server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	s.mux.ServeHTTP(w, r)
 }
 
-// Use implementa middlewares
+// Use adds a middleware to the server.
 func (s *Server) Use(middleware func(http.Handler) http.Handler) {
 	s.httpServer.Handler = middleware(s.httpServer.Handler)
 }
 
-// UseChain implementa multiples middlewares a la vez
+// UseChain adds multiple middlewares to the server.
 func (s *Server) UseChain(m ...middlewares.Middleware) {
 	s.httpServer.Handler = middlewares.Chain(s.httpServer.Handler, m...)
 }
 
-// New crea nuevo servidor
+// New creates an HTTP server with the supplied address and options.
 func New(addr string, opts ...Option) *Server {
 	cfg := defaultConfig()
 	for _, opt := range opts {

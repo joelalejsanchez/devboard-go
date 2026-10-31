@@ -1,4 +1,4 @@
-// Package usecases - casos de uso de usuario
+// Package usecases coordinates application workflows.
 package usecases
 
 import (
@@ -8,19 +8,19 @@ import (
 	"fmt"
 )
 
-// UserRepository contrato para obtener usuarios
+// UserRepository defines user persistence operations required by the use case.
 type UserRepository interface {
 	Create(ctx context.Context, user *domain.User) error
 	GetByID(ctx context.Context, id string) (*domain.User, error)
 	GetByEmail(ctx context.Context, email string) (*domain.User, error)
 }
 
-// UserUseCase orquesta las operaciones de negocio sobre usuario
+// UserUseCase coordinates user-related business workflows.
 type UserUseCase struct {
 	repo UserRepository
 }
 
-// CreateUser orquesta la creacion de un usuario
+// CreateUser creates a user and stores it through the repository.
 func (uc *UserUseCase) CreateUser(ctx context.Context, email, name, passwordHash string) (*domain.User, error) {
 	existing, err := uc.repo.GetByEmail(ctx, email)
 	if err != nil && !errors.Is(err, domain.ErrNotFound) {
@@ -42,7 +42,7 @@ func (uc *UserUseCase) CreateUser(ctx context.Context, email, name, passwordHash
 	return user, nil
 }
 
-// GetUser obtiene usuario por id
+// GetUser returns a user by ID.
 func (uc *UserUseCase) GetUser(ctx context.Context, id string) (*domain.User, error) {
 	user, err := uc.repo.GetByID(ctx, id)
 	if err != nil {
@@ -51,7 +51,7 @@ func (uc *UserUseCase) GetUser(ctx context.Context, id string) (*domain.User, er
 	return user, nil
 }
 
-// NewUserUseCase constructor
+// NewUserUseCase creates a user use case with its repository.
 func NewUserUseCase(repo UserRepository) *UserUseCase {
 	return &UserUseCase{
 		repo: repo,

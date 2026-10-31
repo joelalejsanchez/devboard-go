@@ -1,4 +1,4 @@
-// Package domain - define User
+// Package domain defines the core domain types and business rules.
 package domain
 
 import (
@@ -6,7 +6,7 @@ import (
 	"uuid"
 )
 
-// User struct
+// User represents a user in the system.
 type User struct {
 	ID           string    // `json:"id"`
 	Email        string    // `json:"email"`
@@ -16,7 +16,7 @@ type User struct {
 	UpdatedAt    time.Time // `json:"updated_at"`
 }
 
-// NewUser Crea un nuevo usuario
+// NewUser creates a user with the supplied email, name, and password hash.
 func NewUser(email, name, passwordHash string) *User {
 	now := time.Now()
 	newUser := User{
@@ -30,7 +30,7 @@ func NewUser(email, name, passwordHash string) *User {
 	return &newUser
 }
 
-// IsValid verifica validez de valores de usuario
+// IsValid reports whether the user has valid values.
 func (u *User) IsValid() bool {
 	return u.Email != "" && u.Name != ""
 }

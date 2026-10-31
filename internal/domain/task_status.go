@@ -1,4 +1,4 @@
-// Package domain - define task_status
+// Package domain defines the core domain types and business rules.
 package domain
 
 import (
@@ -6,19 +6,19 @@ import (
 	"fmt"
 )
 
-// TaskStatus type
+// TaskStatus represents the current state of a task.
 type TaskStatus string
 
 const (
-	// TaskStatusTodo estado pendiente
+	// TaskStatusTodo is the initial task state.
 	TaskStatusTodo TaskStatus = "todo"
-	// TaskStatusInProgress estado en progreso
+	// TaskStatusInProgress indicates that work on the task is underway.
 	TaskStatusInProgress TaskStatus = "in_progress"
-	// TaskStatusDone estado hecho
+	// TaskStatusDone indicates that the task is complete.
 	TaskStatusDone TaskStatus = "done"
 )
 
-// IsValid metodo de validacion de valor
+// IsValid reports whether status is one of the supported task states.
 func (status TaskStatus) IsValid() bool {
 	switch status {
 	case
@@ -33,10 +33,7 @@ func (status TaskStatus) IsValid() bool {
 	}
 }
 
-// Este metodo se usa para validaciones anidadas o custom al hacer un UnmarshalJSON
-// Valida Status al desserializar
-
-// UnmarshalJSON valida al desserializar el valor
+// UnmarshalJSON validates the status while decoding its JSON representation.
 func (status *TaskStatus) UnmarshalJSON(data []byte) error {
 	var raw string
 	err := json.Unmarshal(data, &raw)

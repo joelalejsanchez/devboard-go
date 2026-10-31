@@ -1,4 +1,4 @@
-// Package utils - utilidades para errores
+// Package utils provides HTTP handler utilities.
 package utils
 
 import (
@@ -10,13 +10,13 @@ import (
 	"net/http"
 )
 
-// errorResponse struct
+// errorResponse represents a validation error response.
 type errorResponse struct {
 	Error   string                      `json:"error"`
 	Details []validator.ValidationError `json:"details,omitempty"`
-}
+} // @name ErrorResponse
 
-// ProblemDetails struct
+// ProblemDetails represents an HTTP problem response.
 type ProblemDetails struct {
 	Type     string                      `json:"type"`
 	Title    string                      `json:"title"`
@@ -28,7 +28,7 @@ type ProblemDetails struct {
 
 const problemBaseURL = "https://github.com/joelalejsanchez"
 
-// RespondError centralizado
+// RespondError writes a problem response for err and logs unexpected errors.
 func RespondError(w http.ResponseWriter, r *http.Request, l *slog.Logger, err error) {
 	var problem ProblemDetails
 	problem.Instance = r.URL.Path
@@ -85,7 +85,7 @@ func RespondError(w http.ResponseWriter, r *http.Request, l *slog.Logger, err er
 	}
 }
 
-// RespondValidationError responde errores de validacion
+// RespondValidationError writes a bad request response for validation errors.
 func RespondValidationError(w http.ResponseWriter, errs []validator.ValidationError) error {
 	return respondJSON(w, http.StatusBadRequest, errorResponse{
 		Error:   "datos de entrada invalidos",
@@ -93,7 +93,7 @@ func RespondValidationError(w http.ResponseWriter, errs []validator.ValidationEr
 	})
 }
 
-// RespondJSON envia una respuesta exitosa en JSON
+// RespondJSON writes data as a JSON response with the supplied status code.
 func RespondJSON(w http.ResponseWriter, status int, data any) error {
 	return respondJSON(w, status, data)
 }

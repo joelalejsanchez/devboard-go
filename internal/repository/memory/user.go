@@ -1,4 +1,4 @@
-// Package memory - repositorio de usuarios en memoria
+// Package memory provides in-memory repository implementations.
 package memory
 
 import (
@@ -9,14 +9,14 @@ import (
 	"uuid"
 )
 
-// UserRepository adapter que implementa UserRepository , almacenamiento en memoria
+// UserRepository stores users in memory and implements the user repository interfaces.
 type UserRepository struct {
 	mu           sync.RWMutex
 	users        map[string]*domain.User // [id string] -> *User
 	usersByEmail map[string]*domain.User // [email string] -> *User
 }
 
-// Create crea un usuario en memoria
+// Create stores a user in memory.
 func (r *UserRepository) Create(_ context.Context, user *domain.User) error {
 	r.mu.Lock()
 	defer r.mu.Unlock()
@@ -36,7 +36,7 @@ func (r *UserRepository) Create(_ context.Context, user *domain.User) error {
 	return nil
 }
 
-// GetByID obtiene un usuario por id, desde memoria
+// GetByID returns a user by ID.
 func (r *UserRepository) GetByID(_ context.Context, id string) (*domain.User, error) {
 	r.mu.RLock()
 	defer r.mu.RUnlock()
@@ -48,7 +48,7 @@ func (r *UserRepository) GetByID(_ context.Context, id string) (*domain.User, er
 	return user, nil
 }
 
-// GetByEmail obtiene un usuario por email, desde memoria
+// GetByEmail returns a user by email.
 func (r *UserRepository) GetByEmail(_ context.Context, email string) (*domain.User, error) {
 	r.mu.RLock()
 	defer r.mu.RUnlock()
@@ -60,7 +60,7 @@ func (r *UserRepository) GetByEmail(_ context.Context, email string) (*domain.Us
 	return user, nil
 }
 
-// NewUserRepository crea un nuveo repositorio en memoria
+// NewUserRepository creates an empty in-memory user repository.
 func NewUserRepository() *UserRepository {
 	return &UserRepository{
 		users:        make(map[string]*domain.User),

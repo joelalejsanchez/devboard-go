@@ -1,4 +1,4 @@
-// Package memory - repositorio de task
+// Package memory provides in-memory repository implementations.
 package memory
 
 import (
@@ -9,20 +9,20 @@ import (
 	"uuid"
 )
 
-// TaskRepository struct
+// TaskRepository stores tasks in memory.
 type TaskRepository struct {
 	mu    sync.RWMutex
 	tasks map[string]*domain.Task
 }
 
-// NewTaskRepository constructor
+// NewTaskRepository creates an empty in-memory task repository.
 func NewTaskRepository() *TaskRepository {
 	return &TaskRepository{
 		tasks: make(map[string]*domain.Task),
 	}
 }
 
-// Create crea tarea
+// Create stores a task in the repository.
 func (r *TaskRepository) Create(_ context.Context, task *domain.Task) error {
 	r.mu.Lock()
 	defer r.mu.Unlock()
@@ -33,7 +33,7 @@ func (r *TaskRepository) Create(_ context.Context, task *domain.Task) error {
 	return nil
 }
 
-// Update actualiza tarea
+// Update replaces a task in the repository.
 func (r *TaskRepository) Update(_ context.Context, task *domain.Task) error {
 	r.mu.Lock()
 	defer r.mu.Unlock()
@@ -42,7 +42,7 @@ func (r *TaskRepository) Update(_ context.Context, task *domain.Task) error {
 	return nil
 }
 
-// GetByID obtiene tarea
+// GetByID returns a task by ID.
 func (r *TaskRepository) GetByID(_ context.Context, id string) (*domain.Task, error) {
 	r.mu.RLock()
 	defer r.mu.RUnlock()
@@ -54,7 +54,7 @@ func (r *TaskRepository) GetByID(_ context.Context, id string) (*domain.Task, er
 	return task, nil
 }
 
-// ListByProject obtiene tareas de proyecto
+// ListByProject returns all tasks belonging to a project.
 func (r *TaskRepository) ListByProject(_ context.Context, projectID string) ([]*domain.Task, error) {
 	var result []*domain.Task
 	for _, task := range r.tasks {

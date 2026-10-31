@@ -61,4 +61,4 @@ docker-logs:
 
 ## docs: documentacion swagger con swaggos
 docs:
-	swag init -g $(MAIN_PATH)/main.go -o docs
+	swag init -g $(MAIN_PATH)/main.go -o docs --parseDependency

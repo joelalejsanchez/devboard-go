@@ -1,35 +1,6 @@
 basePath: /api/v1
 definitions:
-  domain.Task:
-    properties:
-      assigneeID:
-        description: '`json:"assinee_id"` // no obliga a crear desde un inicio la
-          referencia'
-        type: string
-      createdAt:
-        type: string
-      createdBy:
-        type: string
-      description:
-        description: '`json:"description"`'
-        type: string
-      id:
-        description: '`json:"id"`'
-        type: string
-      projectID:
-        description: '`json:"project_id"`'
-        type: string
-      status:
-        allOf:
-        - $ref: '#/definitions/domain.TaskStatus'
-        description: '`json:"status"`'
-      title:
-        description: '`json:"title"`'
-        type: string
-      updatedAt:
-        type: string
-    type: object
-  domain.TaskStatus:
+  devboard_internal_domain.TaskStatus:
     enum:
     - todo
     - in_progress
@@ -39,8 +10,53 @@ definitions:
     - TaskStatusTodo
     - TaskStatusInProgress
     - TaskStatusDone
-  handlers.createTaskRequest:
+  devboard_internal_handlers_utils.PaginatedResponse-internal_handlers_taskResponse:
     properties:
+      data:
+        items:
+          $ref: '#/definitions/internal_handlers.taskResponse'
+        type: array
+      has_more:
+        type: boolean
+      next_cursor:
+        type: string
+    type: object
+  devboard_internal_handlers_utils.ProblemDetails:
+    properties:
+      detail:
+        type: string
+      errors:
+        items:
+          $ref: '#/definitions/devboard_internal_validator.ValidationError'
+        type: array
+      instance:
+        type: string
+      status:
+        type: integer
+      title:
+        type: string
+      type:
+        type: string
+    type: object
+  devboard_internal_validator.ValidationError:
+    properties:
+      field:
+        type: string
+      message:
+        type: string
+    type: object
+  internal_handlers.assignTaskRequest:
+    properties:
+      assignee_id:
+        type: string
+    required:
+    - assignee_id
+    type: object
+  internal_handlers.createTaskRequest:
+    properties:
+      description:
+        maxLength: 2000
+        type: string
       project_id:
         type: string
       title:
@@ -51,7 +67,7 @@ definitions:
     - project_id
     - title
     type: object
-  handlers.createUserRequest:
+  internal_handlers.createUserRequest:
     properties:
       email:
         type: string
@@ -67,28 +83,14 @@ definitions:
     - name
     - password
     type: object
-  handlers.healthResponse:
+  internal_handlers.healthResponse:
     properties:
       status:
         type: string
       version:
         type: string
     type: object
-  handlers.taskAssignRequest:
-    properties:
-      user_id:
-        type: string
-    required:
-    - user_id
-    type: object
-  handlers.taskListResponse:
-    properties:
-      data:
-        items:
-          $ref: '#/definitions/domain.Task'
-        type: array
-    type: object
-  handlers.taskResponse:
+  internal_handlers.taskResponse:
     properties:
       assinee_id:
         type: string
@@ -103,48 +105,26 @@ definitions:
       project_id:
         type: string
       status:
-        $ref: '#/definitions/domain.TaskStatus'
+        $ref: '#/definitions/devboard_internal_domain.TaskStatus'
       title:
         type: string
       updated_at:
         type: string
     type: object
-  handlers.taskUpdateStatusRequest:
+  internal_handlers.updateStatusRequest:
     properties:
       status:
-        type: string
+        $ref: '#/definitions/devboard_internal_domain.TaskStatus'
+    required:
+    - status
     type: object
-  handlers.userResponse:
+  internal_handlers.userResponse:
     properties:
       email:
         type: string
       id:
         type: string
       name:
-        type: string
-    type: object
-  utils.ProblemDetails:
-    properties:
-      detail:
-        type: string
-      errors:
-        items:
-          $ref: '#/definitions/validator.ValidationError'
-        type: array
-      instance:
-        type: string
-      status:
-        type: integer
-      title:
-        type: string
-      type:
-        type: string
-    type: object
-  validator.ValidationError:
-    properties:
-      field:
-        type: string
-      message:
         type: string
     type: object
 host: localhost:8000
@@ -164,7 +144,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/handlers.healthResponse'
+            $ref: '#/definitions/internal_handlers.healthResponse'
       summary: Health check
       tags:
       - system
@@ -183,11 +163,11 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/handlers.taskListResponse'
-        "400":
-          description: Bad Request
+            $ref: '#/definitions/devboard_internal_handlers_utils.PaginatedResponse-internal_handlers_taskResponse'
+        "404":
+          description: Not Found
           schema:
-            $ref: '#/definitions/utils.ProblemDetails'
+            $ref: '#/definitions/devboard_internal_handlers_utils.ProblemDetails'
       summary: Get Tasks from Project
       tags:
       - tasks
@@ -200,18 +180,18 @@ paths:
         name: request
         required: true
         schema:
-          $ref: '#/definitions/handlers.createTaskRequest'
+          $ref: '#/definitions/internal_handlers.createTaskRequest'
       produces:
       - application/json
       responses:
         "201":
           description: Created
           schema:
-            $ref: '#/definitions/handlers.taskResponse'
+            $ref: '#/definitions/internal_handlers.taskResponse'
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/utils.ProblemDetails'
+            $ref: '#/definitions/devboard_internal_handlers_utils.ProblemDetails'
       summary: Create Task
       tags:
       - tasks
@@ -230,11 +210,11 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/handlers.taskResponse'
-        "400":
-          description: Bad Request
+            $ref: '#/definitions/internal_handlers.taskResponse'
+        "404":
+          description: Not Found
           schema:
-            $ref: '#/definitions/utils.ProblemDetails'
+            $ref: '#/definitions/devboard_internal_handlers_utils.ProblemDetails'
       summary: Get Task
       tags:
       - tasks
@@ -242,12 +222,12 @@ paths:
     put:
       description: Asigna una tarea a un usuario
       parameters:
-      - description: Datos de la tarea
+      - description: ID del asignado
         in: body
         name: request
         required: true
         schema:
-          $ref: '#/definitions/handlers.taskAssignRequest'
+          $ref: '#/definitions/internal_handlers.assignTaskRequest'
       - description: ID de la tarea
         in: path
         name: id
@@ -259,15 +239,11 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/handlers.taskListResponse'
-        "400":
-          description: Bad Request
-          schema:
-            $ref: '#/definitions/utils.ProblemDetails'
+            $ref: '#/definitions/internal_handlers.taskResponse'
         "404":
           description: Not Found
           schema:
-            $ref: '#/definitions/utils.ProblemDetails'
+            $ref: '#/definitions/devboard_internal_handlers_utils.ProblemDetails'
       summary: Asignar tarea a usuario
       tags:
       - tasks
@@ -280,7 +256,7 @@ paths:
         name: request
         required: true
         schema:
-          $ref: '#/definitions/handlers.taskUpdateStatusRequest'
+          $ref: '#/definitions/internal_handlers.updateStatusRequest'
       - description: ID de la tarea
         in: path
         name: id
@@ -292,15 +268,11 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/handlers.taskListResponse'
-        "400":
-          description: Bad Request
-          schema:
-            $ref: '#/definitions/utils.ProblemDetails'
+            $ref: '#/definitions/internal_handlers.taskResponse'
         "404":
           description: Not Found
           schema:
-            $ref: '#/definitions/utils.ProblemDetails'
+            $ref: '#/definitions/devboard_internal_handlers_utils.ProblemDetails'
       summary: actualiza el estado de tarea
       tags:
       - tasks
@@ -313,18 +285,18 @@ paths:
         name: request
         required: true
         schema:
-          $ref: '#/definitions/handlers.createUserRequest'
+          $ref: '#/definitions/internal_handlers.createUserRequest'
       produces:
       - application/json
       responses:
         "201":
           description: Created
           schema:
-            $ref: '#/definitions/handlers.userResponse'
+            $ref: '#/definitions/internal_handlers.userResponse'
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/utils.ProblemDetails'
+            $ref: '#/definitions/devboard_internal_handlers_utils.ProblemDetails'
       summary: Create User
       tags:
       - users
@@ -343,11 +315,11 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/handlers.userResponse'
+            $ref: '#/definitions/internal_handlers.userResponse'
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/utils.ProblemDetails'
+            $ref: '#/definitions/devboard_internal_handlers_utils.ProblemDetails'
       summary: Get User
       tags:
       - users

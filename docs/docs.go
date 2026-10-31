@@ -31,7 +31,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/handlers.healthResponse"
+                            "$ref": "#/definitions/internal_handlers.healthResponse"
                         }
                     }
                 }
@@ -60,13 +60,13 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/handlers.taskListResponse"
+                            "$ref": "#/definitions/devboard_internal_handlers_utils.PaginatedResponse-internal_handlers_taskResponse"
                         }
                     },
-                    "400": {
-                        "description": "Bad Request",
+                    "404": {
+                        "description": "Not Found",
                         "schema": {
-                            "$ref": "#/definitions/utils.ProblemDetails"
+                            "$ref": "#/definitions/devboard_internal_handlers_utils.ProblemDetails"
                         }
                     }
                 }
@@ -89,7 +89,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/handlers.createTaskRequest"
+                            "$ref": "#/definitions/internal_handlers.createTaskRequest"
                         }
                     }
                 ],
@@ -97,13 +97,13 @@ const docTemplate = `{
                     "201": {
                         "description": "Created",
                         "schema": {
-                            "$ref": "#/definitions/handlers.taskResponse"
+                            "$ref": "#/definitions/internal_handlers.taskResponse"
                         }
                     },
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/utils.ProblemDetails"
+                            "$ref": "#/definitions/devboard_internal_handlers_utils.ProblemDetails"
                         }
                     }
                 }
@@ -132,13 +132,13 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/handlers.taskResponse"
+                            "$ref": "#/definitions/internal_handlers.taskResponse"
                         }
                     },
-                    "400": {
-                        "description": "Bad Request",
+                    "404": {
+                        "description": "Not Found",
                         "schema": {
-                            "$ref": "#/definitions/utils.ProblemDetails"
+                            "$ref": "#/definitions/devboard_internal_handlers_utils.ProblemDetails"
                         }
                     }
                 }
@@ -156,12 +156,12 @@ const docTemplate = `{
                 "summary": "Asignar tarea a usuario",
                 "parameters": [
                     {
-                        "description": "Datos de la tarea",
+                        "description": "ID del asignado",
                         "name": "request",
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/handlers.taskAssignRequest"
+                            "$ref": "#/definitions/internal_handlers.assignTaskRequest"
                         }
                     },
                     {
@@ -176,19 +176,13 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/handlers.taskListResponse"
-                        }
-                    },
-                    "400": {
-                        "description": "Bad Request",
-                        "schema": {
-                            "$ref": "#/definitions/utils.ProblemDetails"
+                            "$ref": "#/definitions/internal_handlers.taskResponse"
                         }
                     },
                     "404": {
                         "description": "Not Found",
                         "schema": {
-                            "$ref": "#/definitions/utils.ProblemDetails"
+                            "$ref": "#/definitions/devboard_internal_handlers_utils.ProblemDetails"
                         }
                     }
                 }
@@ -211,7 +205,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/handlers.taskUpdateStatusRequest"
+                            "$ref": "#/definitions/internal_handlers.updateStatusRequest"
                         }
                     },
                     {
@@ -226,19 +220,13 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/handlers.taskListResponse"
-                        }
-                    },
-                    "400": {
-                        "description": "Bad Request",
-                        "schema": {
-                            "$ref": "#/definitions/utils.ProblemDetails"
+                            "$ref": "#/definitions/internal_handlers.taskResponse"
                         }
                     },
                     "404": {
                         "description": "Not Found",
                         "schema": {
-                            "$ref": "#/definitions/utils.ProblemDetails"
+                            "$ref": "#/definitions/devboard_internal_handlers_utils.ProblemDetails"
                         }
                     }
                 }
@@ -261,7 +249,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/handlers.createUserRequest"
+                            "$ref": "#/definitions/internal_handlers.createUserRequest"
                         }
                     }
                 ],
@@ -269,13 +257,13 @@ const docTemplate = `{
                     "201": {
                         "description": "Created",
                         "schema": {
-                            "$ref": "#/definitions/handlers.userResponse"
+                            "$ref": "#/definitions/internal_handlers.userResponse"
                         }
                     },
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/utils.ProblemDetails"
+                            "$ref": "#/definitions/devboard_internal_handlers_utils.ProblemDetails"
                         }
                     }
                 }
@@ -304,13 +292,13 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/handlers.userResponse"
+                            "$ref": "#/definitions/internal_handlers.userResponse"
                         }
                     },
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/utils.ProblemDetails"
+                            "$ref": "#/definitions/devboard_internal_handlers_utils.ProblemDetails"
                         }
                     }
                 }
@@ -318,49 +306,7 @@ const docTemplate = `{
         }
     },
     "definitions": {
-        "domain.Task": {
-            "type": "object",
-            "properties": {
-                "assigneeID": {
-                    "description": "` + "`" + `json:\"assinee_id\"` + "`" + ` // no obliga a crear desde un inicio la referencia",
-                    "type": "string"
-                },
-                "createdAt": {
-                    "type": "string"
-                },
-                "createdBy": {
-                    "type": "string"
-                },
-                "description": {
-                    "description": "` + "`" + `json:\"description\"` + "`" + `",
-                    "type": "string"
-                },
-                "id": {
-                    "description": "` + "`" + `json:\"id\"` + "`" + `",
-                    "type": "string"
-                },
-                "projectID": {
-                    "description": "` + "`" + `json:\"project_id\"` + "`" + `",
-                    "type": "string"
-                },
-                "status": {
-                    "description": "` + "`" + `json:\"status\"` + "`" + `",
-                    "allOf": [
-                        {
-                            "$ref": "#/definitions/domain.TaskStatus"
-                        }
-                    ]
-                },
-                "title": {
-                    "description": "` + "`" + `json:\"title\"` + "`" + `",
-                    "type": "string"
-                },
-                "updatedAt": {
-                    "type": "string"
-                }
-            }
-        },
-        "domain.TaskStatus": {
+        "devboard_internal_domain.TaskStatus": {
             "type": "string",
             "enum": [
                 "todo",
@@ -373,13 +319,82 @@ const docTemplate = `{
                 "TaskStatusDone"
             ]
         },
-        "handlers.createTaskRequest": {
+        "devboard_internal_handlers_utils.PaginatedResponse-internal_handlers_taskResponse": {
+            "type": "object",
+            "properties": {
+                "data": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/internal_handlers.taskResponse"
+                    }
+                },
+                "has_more": {
+                    "type": "boolean"
+                },
+                "next_cursor": {
+                    "type": "string"
+                }
+            }
+        },
+        "devboard_internal_handlers_utils.ProblemDetails": {
+            "type": "object",
+            "properties": {
+                "detail": {
+                    "type": "string"
+                },
+                "errors": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/devboard_internal_validator.ValidationError"
+                    }
+                },
+                "instance": {
+                    "type": "string"
+                },
+                "status": {
+                    "type": "integer"
+                },
+                "title": {
+                    "type": "string"
+                },
+                "type": {
+                    "type": "string"
+                }
+            }
+        },
+        "devboard_internal_validator.ValidationError": {
+            "type": "object",
+            "properties": {
+                "field": {
+                    "type": "string"
+                },
+                "message": {
+                    "type": "string"
+                }
+            }
+        },
+        "internal_handlers.assignTaskRequest": {
+            "type": "object",
+            "required": [
+                "assignee_id"
+            ],
+            "properties": {
+                "assignee_id": {
+                    "type": "string"
+                }
+            }
+        },
+        "internal_handlers.createTaskRequest": {
             "type": "object",
             "required": [
                 "project_id",
                 "title"
             ],
             "properties": {
+                "description": {
+                    "type": "string",
+                    "maxLength": 2000
+                },
                 "project_id": {
                     "type": "string"
                 },
@@ -390,7 +405,7 @@ const docTemplate = `{
                 }
             }
         },
-        "handlers.createUserRequest": {
+        "internal_handlers.createUserRequest": {
             "type": "object",
             "required": [
                 "email",
@@ -412,7 +427,7 @@ const docTemplate = `{
                 }
             }
         },
-        "handlers.healthResponse": {
+        "internal_handlers.healthResponse": {
             "type": "object",
             "properties": {
                 "status": {
@@ -423,29 +438,7 @@ const docTemplate = `{
                 }
             }
         },
-        "handlers.taskAssignRequest": {
-            "type": "object",
-            "required": [
-                "user_id"
-            ],
-            "properties": {
-                "user_id": {
-                    "type": "string"
-                }
-            }
-        },
-        "handlers.taskListResponse": {
-            "type": "object",
-            "properties": {
-                "data": {
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/domain.Task"
-                    }
-                }
-            }
-        },
-        "handlers.taskResponse": {
+        "internal_handlers.taskResponse": {
             "type": "object",
             "properties": {
                 "assinee_id": {
@@ -467,7 +460,7 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "status": {
-                    "$ref": "#/definitions/domain.TaskStatus"
+                    "$ref": "#/definitions/devboard_internal_domain.TaskStatus"
                 },
                 "title": {
                     "type": "string"
@@ -477,15 +470,18 @@ const docTemplate = `{
                 }
             }
         },
-        "handlers.taskUpdateStatusRequest": {
+        "internal_handlers.updateStatusRequest": {
             "type": "object",
+            "required": [
+                "status"
+            ],
             "properties": {
                 "status": {
-                    "type": "string"
+                    "$ref": "#/definitions/devboard_internal_domain.TaskStatus"
                 }
             }
         },
-        "handlers.userResponse": {
+        "internal_handlers.userResponse": {
             "type": "object",
             "properties": {
                 "email": {
@@ -495,43 +491,6 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "name": {
-                    "type": "string"
-                }
-            }
-        },
-        "utils.ProblemDetails": {
-            "type": "object",
-            "properties": {
-                "detail": {
-                    "type": "string"
-                },
-                "errors": {
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/validator.ValidationError"
-                    }
-                },
-                "instance": {
-                    "type": "string"
-                },
-                "status": {
-                    "type": "integer"
-                },
-                "title": {
-                    "type": "string"
-                },
-                "type": {
-                    "type": "string"
-                }
-            }
-        },
-        "validator.ValidationError": {
-            "type": "object",
-            "properties": {
-                "field": {
-                    "type": "string"
-                },
-                "message": {
                     "type": "string"
                 }
             }

@@ -26,7 +26,7 @@ func NewTaskRepository(pool *pgxpool.Pool) *TaskRepository {
 	}
 }
 
-func toDomainTask(g *generated.Task) *domain.Task {
+func toDomainTask(g generated.Task) *domain.Task {
 	task := &domain.Task{
 		ID:          g.ID.String(),
 		ProjectID:   g.ProjectID.String(),
@@ -85,7 +85,7 @@ func (r *TaskRepository) Update(ctx context.Context, task *domain.Task) error {
 
 	var assigneeID pgtype.UUID
 	if task.AssigneeID != nil {
-		if err := assigneeID.Scan(task.AssigneeID); err != nil {
+		if err := assigneeID.Scan(*task.AssigneeID); err != nil {
 			return fmt.Errorf("created_by invalido: %w", err)
 		}
 	}
@@ -108,4 +108,43 @@ func (r *TaskRepository) Update(ctx context.Context, task *domain.Task) error {
 	task.UpdatedAt = result.UpdatedAt.Time
 
 	return nil
+}
+
+// GetByID get one user by id
+func (r *TaskRepository) GetByID(ctx context.Context, id string) (*domain.Task, error) {
+	var pgID pgtype.UUID
+	if err := pgID.Scan(id); err != nil {
+		return nil, fmt.Errorf("id invalido %s: %w", id, domain.ErrInvalidInput)
+	}
+
+	result, err := r.queries.GetTaskByID(ctx, pgID)
+	if err != nil {
+		if errors.Is(err, pgx.ErrNoRows) {
+			return nil, fmt.Errorf("tarea: %w", domain.ErrNotFound)
+
+		}
+		return nil, fmt.Errorf("buscando tarea %s: %w", id, err)
+	}
+
+	return toDomainTask(result), nil
+}
+
+// ListByProject function
+func (r *TaskRepository) ListByProject(ctx context.Context, projectID string) ([]*domain.Task, error) {
+	var pgProjectID pgtype.UUID
+	if err := pgProjectID.Scan(projectID); err != nil {
+		return nil, fmt.Errorf("id invalido %s: %w", projectID, domain.ErrInvalidInput)
+	}
+
+	tasks, err := r.queries.ListTaskByProject(ctx, pgProjectID)
+	if err != nil {
+		return nil, fmt.Errorf("buscando tareas de proyecto %s: %w", projectID, err)
+	}
+
+	result := make([]*domain.Task, len(tasks))
+
+	for i, task := range tasks {
+		result[i] = toDomainTask(task)
+	}
+	return result, nil
 }

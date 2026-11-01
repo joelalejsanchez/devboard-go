@@ -8,7 +8,7 @@ DB_URL=postgresql://postgres:password@localhost:5433/devboard?sslmode=disable
 
 ## run: correr la aplicación
 run:
-	go run $(MAIN_PATH)/main.go
+	GO_ENV=development DATABASE_URL=$(DB_URL) go run $(MAIN_PATH)/main.go
 
 ## build: compilar el binario
 build:

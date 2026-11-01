@@ -2,6 +2,7 @@
 package main
 
 import (
+	"context"
 	"log/slog"
 	"net/http"
 	"os"
@@ -12,7 +13,7 @@ import (
 	_ "devboard/internal/handlers/utils"
 	"devboard/internal/loggers"
 	"devboard/internal/middlewares"
-	"devboard/internal/repository/memory"
+	"devboard/internal/repository/postgres"
 	"devboard/internal/server"
 	"devboard/internal/usecases"
 	"devboard/internal/validator"
@@ -28,17 +29,47 @@ import (
 // @BasePath /api/v1
 func main() {
 
-	lgr := setupLogger()
-	svr := setupServer(lgr)
-	setupRoutes(svr, lgr)
-	if err := svr.Start(); err != nil {
-		lgr.Error("error fatal", "error", err)
-		os.Exit(1)
+	/*
+	 * ========================
+	 * VARIABLES DE ENTORNO
+	 * ========================
+	 */
+
+	env := os.Getenv("GO_ENV")
+	pgURL := os.Getenv("DATABASE_URL")
+
+	/*
+	 * ========================
+	 * VALORES GLOBALES
+	 * ========================
+	 */
+	var lgr *slog.Logger
+	if env == "production" {
+		lgr = loggers.New(loggers.ProductionConfig())
+	} else {
+		lgr = loggers.New(loggers.DefaultConfig())
 	}
 
-}
+	vlt := validator.New()
+	pool, err := postgres.NewPool(context.Background(), postgres.Config{
+		URL:             pgURL,
+		MaxConns:        20,
+		MinConns:        5,
+		MaxConnLifetime: 1 * time.Hour,
+		MaxConnIdleTime: 30 * time.Minute,
+	})
+	if err != nil {
+		lgr.Error("no se pudo conectar a base de datos", slog.Any("error", err))
+		os.Exit(1)
+	}
+	defer pool.Close()
+	lgr.Info("conexion a base de datos iniciada")
 
-func setupServer(lgr *slog.Logger) *server.Server {
+	/*
+	 * ========================
+	 * SERVER Y MIDDLWARES
+	 * ========================
+	 */
 
 	svr := server.New(
 		"localhost:8000",
@@ -51,29 +82,25 @@ func setupServer(lgr *slog.Logger) *server.Server {
 		middlewares.Logger(lgr),
 	)
 
-	return svr
-}
-func setupLogger() *slog.Logger {
-	env := os.Getenv("GO_ENV")
+	/*
+	 * ========================
+	 * DEPENDENCIAS
+	 * ========================
+	 */
 
-	if env == "production" {
-		return loggers.New(loggers.ProductionConfig())
-	}
-
-	return loggers.New(loggers.DefaultConfig())
-}
-
-func setupRoutes(svr *server.Server, lgr *slog.Logger) {
-	vlt := validator.New()
-
-	userRepo := memory.NewUserRepository()
+	userRepo := postgres.NewUserRepository(pool)
 	uUC := usecases.NewUserUseCase(userRepo)
 	userHandler := handlers.NewUserHandler(uUC, vlt, lgr)
 
-	taskRepo := memory.NewTaskRepository()
+	taskRepo := postgres.NewTaskRepository(pool)
 	tUC := usecases.NewTaskUseCase(taskRepo, taskRepo)
 	taskHandler := handlers.NewTaskHandler(tUC, vlt, lgr)
 
+	/*
+	 * ========================
+	 * RUTAS Y HANDLERS
+	 * ========================
+	 */
 	svr.RegisterRoute("GET  /api/v1/docs/", httpSwagger.WrapHandler)
 	svr.RegisterRoute("GET  /api/v1/health", &handlers.HealthHandler{})
 	svr.RegisterRoute("POST /api/v1/users", http.HandlerFunc(userHandler.Create))
@@ -83,4 +110,14 @@ func setupRoutes(svr *server.Server, lgr *slog.Logger) {
 	svr.RegisterRoute("GET 	/api/v1/projects/{id}/tasks", http.HandlerFunc(taskHandler.ListByProject))
 	svr.RegisterRoute("PUT  /api/v1/tasks/{id}/assign", http.HandlerFunc(taskHandler.Assign))
 	svr.RegisterRoute("PUT 	/api/v1/tasks/{id}/status", http.HandlerFunc(taskHandler.UpdateStatus))
+
+	/*
+	 * ========================
+	 * INICIO DE SERVIDOR
+	 * ========================
+	 */
+	if err := svr.Start(); err != nil {
+		lgr.Error("error fatal", "error", err)
+		os.Exit(1)
+	}
 }

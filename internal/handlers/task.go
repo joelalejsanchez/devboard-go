@@ -158,8 +158,8 @@ type assignTaskRequest struct {
 // @Tags tasks
 // @Accepts json
 // @Produce json
-// @Param request body assignTaskRequest true "Assignee data"
 // @Param id path string true "Task ID"
+// @Param request body assignTaskRequest true "Assignee data"
 // @Success 200 {object} TaskResponse
 // @Failure 404 {object} utils.ProblemDetails
 // @Router /tasks/{id}/assign [put]
@@ -199,8 +199,8 @@ type updateStatusRequest struct {
 // @Tags tasks
 // @Accepts json
 // @Produce json
-// @Param request body updateStatusRequest true "Task status"
 // @Param id path string true "Task ID"
+// @Param request body updateStatusRequest true "Task status"
 // @Success 200 {object} TaskResponse
 // @Failure 404 {object} utils.ProblemDetails
 // @Router /tasks/{id}/status [put]

@@ -6,11 +6,12 @@ import (
 	"strings"
 )
 
+// SecurityConfig struct
 type SecurityConfig struct {
 	AllowedOrigins []string
 }
 
-// RequireRole middleware verifies authorized roles in endpoint
+// SecurityHeaders middleware verifies authorized roles in endpoint
 func SecurityHeaders(cfg SecurityConfig) Middleware {
 	allowedOrigins := make(map[string]bool, len(cfg.AllowedOrigins))
 	for _, origin := range cfg.AllowedOrigins {

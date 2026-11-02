@@ -9,6 +9,7 @@ import (
 	"time"
 
 	_ "devboard/docs"
+	"devboard/internal/auth"
 	"devboard/internal/cache"
 	"devboard/internal/handlers"
 	_ "devboard/internal/handlers/utils"
@@ -39,6 +40,7 @@ func main() {
 	env := os.Getenv("GO_ENV")
 	pgURL := os.Getenv("DATABASE_URL")
 	redisURL := os.Getenv("REDIS_ADDR")
+	jwtSecret := os.Getenv("JWT_SECRET")
 
 	/*
 	 * ========================
@@ -87,7 +89,27 @@ func main() {
 
 	/*
 	 * ========================
-	 * SERVER Y MIDDLWARES
+	 * AUTH INFRASTRUCTURE
+	 * ========================
+	 */
+
+	refreshTokenDuration := 7 * 24 * time.Hour
+	jwtManager, err := auth.NewJWTManager(auth.JWTConfig{
+		SecretKey:            []byte(jwtSecret),
+		AccessTokenDuration:  15 * time.Minute,
+		RefreshTokenDuration: refreshTokenDuration,
+	})
+
+	if err != nil {
+		lgr.Error("Error configurando JWT", slog.Any("error", err))
+		os.Exit(1)
+	}
+
+	tokenStore := auth.NewTokenStore(redisClient)
+
+	/*
+	 * ========================
+	 * SERVER
 	 * ========================
 	 */
 
@@ -96,10 +118,6 @@ func main() {
 		server.WithLogger(lgr),
 		server.WithReadTimeout(15*time.Second),
 		server.WithWriteTimeout(30*time.Second),
-	)
-	svr.UseChain(
-		middlewares.Recovery(lgr),
-		middlewares.Logger(lgr),
 	)
 
 	/*
@@ -116,21 +134,83 @@ func main() {
 	tUC := usecases.NewTaskUseCase(taskRepo, taskRepo)
 	taskHandler := handlers.NewTaskHandler(tUC, vlt, lgr)
 
+	authUC := usecases.NewAuthUseCase(userRepo, jwtManager, tokenStore, refreshTokenDuration)
+	authHandler := handlers.NewAuthHandler(authUC, vlt, lgr)
+
 	/*
 	 * ========================
 	 * RUTAS Y HANDLERS
 	 * ========================
 	 */
+
+	authMW := middlewares.RequireAuth(jwtManager, lgr)
+
+	// Rutas Publicas
 	svr.RegisterRoute("GET  /api/v1/docs/", httpSwagger.WrapHandler)
 	svr.RegisterRoute("GET  /api/v1/health", &handlers.HealthHandler{})
-	svr.RegisterRoute("GET /api/v1/users", http.HandlerFunc(userHandler.ListAll))
-	svr.RegisterRoute("POST /api/v1/users", http.HandlerFunc(userHandler.Create))
-	svr.RegisterRoute("GET  /api/v1/users/{id}", http.HandlerFunc(userHandler.Get))
-	svr.RegisterRoute("POST /api/v1/tasks", http.HandlerFunc(taskHandler.Create))
-	svr.RegisterRoute("GET 	/api/v1/tasks/{id}", http.HandlerFunc(taskHandler.GetByID))
-	svr.RegisterRoute("GET 	/api/v1/projects/{id}/tasks", http.HandlerFunc(taskHandler.ListByProject))
-	svr.RegisterRoute("PUT  /api/v1/tasks/{id}/assign", http.HandlerFunc(taskHandler.Assign))
-	svr.RegisterRoute("PUT 	/api/v1/tasks/{id}/status", http.HandlerFunc(taskHandler.UpdateStatus))
+	svr.RegisterRoute("POST /api/v1/auth/register", http.HandlerFunc(authHandler.Register))
+	svr.RegisterRoute("POST /api/v1/auth/login", http.HandlerFunc(authHandler.Login))
+	svr.RegisterRoute("POST /api/v1/auth/refresh", http.HandlerFunc(authHandler.Refresh))
+	svr.RegisterRoute("POST /api/v1/auth/logout", http.HandlerFunc(authHandler.Logout))
+
+	// Rutas Protegidas
+	svr.RegisterRoute("GET  /api/v1/users",
+		middlewares.Chain(
+			http.HandlerFunc(userHandler.ListAll),
+			authMW,
+		))
+	svr.RegisterRoute("POST /api/v1/users",
+		middlewares.Chain(
+			http.HandlerFunc(userHandler.Create),
+			authMW,
+		))
+	svr.RegisterRoute("GET  /api/v1/users/{id}",
+		middlewares.Chain(
+			http.HandlerFunc(userHandler.Get),
+			authMW,
+		))
+	svr.RegisterRoute("POST /api/v1/tasks",
+		middlewares.Chain(
+			http.HandlerFunc(taskHandler.Create),
+			authMW,
+		))
+	svr.RegisterRoute("GET 	/api/v1/tasks/{id}",
+		middlewares.Chain(
+			http.HandlerFunc(taskHandler.GetByID),
+			authMW,
+		))
+	svr.RegisterRoute("GET 	/api/v1/projects/{id}/tasks",
+		middlewares.Chain(
+			http.HandlerFunc(taskHandler.ListByProject),
+			authMW,
+		))
+	svr.RegisterRoute("PUT  /api/v1/tasks/{id}/assign",
+		middlewares.Chain(
+			http.HandlerFunc(taskHandler.Assign),
+			authMW,
+		))
+	svr.RegisterRoute("PUT 	/api/v1/tasks/{id}/status",
+		middlewares.Chain(
+			http.HandlerFunc(taskHandler.UpdateStatus),
+			authMW,
+		))
+
+	/*
+	 * ========================
+	 * MIDDLEWARE GLOBALES
+	 * ========================
+	 */
+
+	svr.UseChain(
+		middlewares.Recovery(lgr),
+		middlewares.Logger(lgr),
+		middlewares.SecurityHeaders(middlewares.SecurityConfig{
+			AllowedOrigins: []string{
+				"http://localhost:3000",
+				"http://localhost:5173",
+			},
+		}),
+	)
 
 	/*
 	 * ========================

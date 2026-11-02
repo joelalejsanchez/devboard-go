@@ -23,13 +23,13 @@ func RequireAuth(jwtManager *auth.JWTManager, logger *slog.Logger) Middleware {
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			tokenString, err := extractBearerToken(r)
 			if err != nil {
-				utils.RespondError(w, r, logger, domain.ErrUnauthorized)
+				utils.RespondAuthError(w, r, logger, http.StatusUnauthorized, "No autorizado", "Requiere token de autenticacion")
 				return
 			}
 
 			claims, err := jwtManager.VerifyToken(tokenString)
 			if err != nil {
-				utils.RespondError(w, r, logger, domain.ErrUnauthorized)
+				utils.RespondAuthError(w, r, logger, http.StatusUnauthorized, "No autorizado", "Token de acceso invalido o revocado")
 				return
 			}
 
@@ -84,12 +84,12 @@ func RequireRole(role string, logger *slog.Logger) Middleware {
 					slog.String("path", r.URL.Path),
 				)
 
-				utils.RespondError(w, r, logger, domain.ErrUnauthorized)
+				utils.RespondAuthError(w, r, logger, http.StatusUnauthorized, "No autorizado", "No se encontro informacion de autenticacion")
 				return
 			}
 
 			if claims.Role != role {
-				utils.RespondError(w, r, logger, domain.ErrForbidden)
+				utils.RespondAuthError(w, r, logger, http.StatusForbidden, "Acceso prohibido", "Permisos insuficientes")
 				return
 			}
 

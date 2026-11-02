@@ -103,3 +103,33 @@ func respondJSON(w http.ResponseWriter, status int, data any) error {
 	w.WriteHeader(status)
 	return json.NewEncoder(w).Encode(data)
 }
+
+// RespondAuthError writes a authentication response
+func RespondAuthError(
+	w http.ResponseWriter,
+	r *http.Request,
+	logger *slog.Logger,
+	status int,
+	title string,
+	detail string,
+) {
+	w.Header().Set("Content-Type", "application/problem+json")
+	w.WriteHeader(status)
+
+	response := ProblemDetails{
+		Type:     "about:blank",
+		Title:    title,
+		Status:   status,
+		Detail:   detail,
+		Instance: r.URL.Path,
+	}
+
+	if err := json.NewEncoder(w).Encode(response); err != nil {
+		logger.ErrorContext(
+			r.Context(),
+			"error al escribir respuesta de autenticación",
+			"error", err,
+			"path", r.URL.Path,
+		)
+	}
+}

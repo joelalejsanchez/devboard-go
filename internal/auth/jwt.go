@@ -73,9 +73,38 @@ func (m *JWTManager) GenerateAccessToken(userID, email, role string) (string, er
 	return m.generateToken(userID, email, role, m.config.AccessTokenDuration)
 }
 
-// GenerateAccessToken returns long time refresh token
+// GenerateRefreshToken returns long time refresh token
 func (m *JWTManager) GenerateRefreshToken(userID, email, role string) (string, error) {
 	return m.generateToken(userID, email, role, m.config.RefreshTokenDuration)
+}
+
+// VerifyToken returns claims from a valid token
+func (m *JWTManager) VerifyToken(tokenString string) (*Claims, error) {
+	token, err := jwt.ParseWithClaims(
+		tokenString,
+		&Claims{},
+		func(t *jwt.Token) (any, error) {
+			if _, ok := t.Method.(*jwt.SigningMethodHMAC); !ok {
+				return nil, fmt.Errorf("algoritmo inesperado: %v", t.Header["alg"])
+			}
+			return m.config.SecretKey, nil
+		},
+		jwt.WithExpirationRequired(),
+		jwt.WithIssuedAt(),
+		jwt.WithIssuer("devboard"),
+	)
+	if err != nil {
+		if errors.Is(err, jwt.ErrTokenExpired) {
+			return nil, ErrTokenExpired
+		}
+		return nil, ErrTokenInvalid
+	}
+	claims, ok := token.Claims.(*Claims)
+
+	if !ok || !token.Valid {
+		return nil, ErrTokenInvalid
+	}
+	return claims, nil
 }
 
 // generateTokenID return a new random ID

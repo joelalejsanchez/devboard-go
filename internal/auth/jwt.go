@@ -68,6 +68,16 @@ func (m *JWTManager) generateToken(userID, email, role string, duration time.Dur
 	return signed, nil
 }
 
+// GenerateAccessToken returns short time access token
+func (m *JWTManager) GenerateAccessToken(userID, email, role string) (string, error) {
+	return m.generateToken(userID, email, role, m.config.AccessTokenDuration)
+}
+
+// GenerateAccessToken returns long time refresh token
+func (m *JWTManager) GenerateRefreshToken(userID, email, role string) (string, error) {
+	return m.generateToken(userID, email, role, m.config.RefreshTokenDuration)
+}
+
 // generateTokenID return a new random ID
 func generateTokenID() string {
 	b := make([]byte, 16)

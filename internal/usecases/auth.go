@@ -5,6 +5,7 @@ import (
 	"context"
 	"devboard/internal/auth"
 	"devboard/internal/domain"
+	"fmt"
 	"time"
 )
 
@@ -30,6 +31,7 @@ type AuthUseCase struct {
 	refreshTokenDuration time.Duration
 }
 
+// NewAuthUseCase constructor
 func NewAuthUseCase(
 	repo authRepository,
 	jwtManager *auth.JWTManager,
@@ -42,4 +44,56 @@ func NewAuthUseCase(
 		tokenStore:           tokenStore,
 		refreshTokenDuration: refreshTokenDuration,
 	}
+}
+
+// Register registers user
+func (uc *AuthUseCase) Register(ctx context.Context, email, name, password string) (*AuthTokens, error) {
+	passwordHash, err := auth.HashPassword(password)
+	if err != nil {
+		return nil, fmt.Errorf("hashing password: %w", err)
+	}
+
+	user := domain.NewUser(email, name, passwordHash)
+	if err := uc.repo.Create(ctx, user); err != nil {
+		return nil, fmt.Errorf("creando usuario: %w", err)
+	}
+
+	tokens, err := uc.generateTokenPair(ctx, user.ID, user.Email, "member")
+	if err != nil {
+		return nil, err
+	}
+	return tokens, nil
+}
+
+// generateTokenPair returns access and refresh token
+func (uc *AuthUseCase) generateTokenPair(ctx context.Context, id, email, role string) (*AuthTokens, error) {
+	accessToken, err := uc.jwtManager.GenerateAccessToken(id, email, role)
+	if err != nil {
+		return nil, fmt.Errorf("generando access token: %w", err)
+	}
+
+	refreshToken, err := uc.jwtManager.GenerateRefreshToken(id, email, role)
+	if err != nil {
+		return nil, fmt.Errorf("generando refresh token: %w", err)
+	}
+
+	refreshClaims, err := uc.jwtManager.VerifyToken(refreshToken)
+	if err != nil {
+		return nil, fmt.Errorf("extrayendo claims refresh token: %w", err)
+	}
+
+	if err := uc.tokenStore.StoreRefreshToken(
+		ctx,
+		refreshClaims.ID,
+		id,
+		uc.refreshTokenDuration,
+	); err != nil {
+		return nil, fmt.Errorf("guardando refresh token: %w", err)
+	}
+
+	return &AuthTokens{
+		AccessToken:  accessToken,
+		RefreshToken: refreshToken,
+		ExpiresIn:    15 * time.Minute,
+	}, nil
 }

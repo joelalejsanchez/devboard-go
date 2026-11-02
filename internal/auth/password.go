@@ -66,6 +66,7 @@ func HashPassword(password string) (string, error) {
 	return encoded, nil
 }
 
+// VerifyPassword compares password and returns errors if not matches
 func VerifyPassword(password, encodedHash string) error {
 	params, salt, hash, err := parseHash(encodedHash)
 	if err != nil {

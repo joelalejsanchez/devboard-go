@@ -9,6 +9,7 @@ import (
 	"time"
 
 	_ "devboard/docs"
+	"devboard/internal/cache"
 	"devboard/internal/handlers"
 	_ "devboard/internal/handlers/utils"
 	"devboard/internal/loggers"
@@ -37,6 +38,7 @@ func main() {
 
 	env := os.Getenv("GO_ENV")
 	pgURL := os.Getenv("DATABASE_URL")
+	redisURL := os.Getenv("REDIS_ADDR")
 
 	/*
 	 * ========================
@@ -51,7 +53,8 @@ func main() {
 	}
 
 	vlt := validator.New()
-	pool, err := postgres.NewPool(context.Background(), postgres.Config{
+	// Postgres connection
+	postgresPool, err := postgres.NewPool(context.Background(), postgres.Config{
 		URL:             pgURL,
 		MaxConns:        20,
 		MinConns:        5,
@@ -62,8 +65,25 @@ func main() {
 		lgr.Error("no se pudo conectar a base de datos", slog.Any("error", err))
 		os.Exit(1)
 	}
-	defer pool.Close()
+	defer postgresPool.Close()
 	lgr.Info("conexion a base de datos iniciada")
+
+	redisClient, err := cache.NewClient(context.Background(), cache.Config{
+		Addr:    redisURL,
+		Timeout: 5 * time.Second,
+	})
+	if err != nil {
+		lgr.Error("no se pudo conectar a redis", slog.Any("error", err))
+		os.Exit(1)
+	}
+	defer func() {
+		if err := redisClient.Close(); err != nil {
+			lgr.Error("no se pudo cerrar conexion a redis",
+				slog.Any("error", err),
+			)
+		}
+	}()
+	lgr.Info("conexion a redis iniciada")
 
 	/*
 	 * ========================
@@ -88,11 +108,11 @@ func main() {
 	 * ========================
 	 */
 
-	userRepo := postgres.NewUserRepository(pool)
+	userRepo := postgres.NewUserRepository(postgresPool)
 	uUC := usecases.NewUserUseCase(userRepo)
 	userHandler := handlers.NewUserHandler(uUC, vlt, lgr)
 
-	taskRepo := postgres.NewTaskRepository(pool)
+	taskRepo := postgres.NewTaskRepository(postgresPool)
 	tUC := usecases.NewTaskUseCase(taskRepo, taskRepo)
 	taskHandler := handlers.NewTaskHandler(tUC, vlt, lgr)
 

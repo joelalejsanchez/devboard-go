@@ -3,12 +3,13 @@ APP_NAME=devboard
 MAIN_PATH=./cmd/api
 MIGRATE_PATH=./migrations
 DB_URL=postgresql://postgres:password@localhost:5433/devboard?sslmode=disable
+REDIS_URL=localhost:6379
 
 .PHONY: run build test format lint migrate-create migrate-up migrate-down generate tidy help docs docker-up docker-down docker-logs
 
 ## run: correr la aplicación
 run:
-	GO_ENV=development DATABASE_URL=$(DB_URL) go run $(MAIN_PATH)/main.go
+	GO_ENV=development DATABASE_URL=$(DB_URL) REDIS_ADDR=$(REDIS_URL) go run $(MAIN_PATH)/main.go
 
 ## build: compilar el binario
 build:

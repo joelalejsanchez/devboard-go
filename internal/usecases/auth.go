@@ -5,6 +5,7 @@ import (
 	"context"
 	"devboard/internal/auth"
 	"devboard/internal/domain"
+	"errors"
 	"fmt"
 	"time"
 )
@@ -96,4 +97,54 @@ func (uc *AuthUseCase) generateTokenPair(ctx context.Context, id, email, role st
 		RefreshToken: refreshToken,
 		ExpiresIn:    15 * time.Minute,
 	}, nil
+}
+
+// Login verifies credentials and returns tokens
+func (uc *AuthUseCase) Login(ctx context.Context, email, password string) (*AuthTokens, error) {
+	user, err := uc.repo.GetByEmail(ctx, email)
+	if err != nil {
+		if errors.Is(err, domain.ErrNotFound) {
+			return nil, fmt.Errorf("credenciales invalidas: %w", err)
+		}
+		return nil, fmt.Errorf("buscando usuario: %w", err)
+	}
+
+	if err := auth.VerifyPassword(password, user.PasswordHash); err != nil {
+		if errors.Is(err, auth.ErrPasswordMissmatch) {
+			return nil, fmt.Errorf("credenciales invalidas: %w", domain.ErrUnauthorized)
+		}
+		return nil, fmt.Errorf("verificando password: %w", domain.ErrUnauthorized)
+	}
+
+	tokens, err := uc.generateTokenPair(ctx, user.ID, user.Email, "member")
+	if err != nil {
+		return nil, err
+	}
+	return tokens, nil
+}
+
+// RefreshTokens verifies and returns new pair of tokens
+func (uc *AuthUseCase) RefreshTokens(ctx context.Context, refreshToken string) (*AuthTokens, error) {
+	claims, err := uc.jwtManager.VerifyToken(refreshToken)
+	if err != nil {
+		return nil, fmt.Errorf("refresh token invalido: %w", domain.ErrUnauthorized)
+	}
+
+	_, err = uc.tokenStore.ValidateRefreshToken(ctx, claims.ID)
+	if err != nil {
+		if errors.Is(err, auth.ErrTokenRevoked) || errors.Is(err, auth.ErrTokenNotFound) {
+			return nil, fmt.Errorf("refresh token invalido: %w", domain.ErrUnauthorized)
+		}
+		return nil, fmt.Errorf("validando refresh token: %w", err)
+	}
+
+	if err := uc.tokenStore.RevokeRefreshToken(ctx, claims.ID, uc.refreshTokenDuration); err != nil {
+		return nil, fmt.Errorf("revocando token anterior: %w", err)
+	}
+
+	tokens, err := uc.generateTokenPair(ctx, claims.ID, claims.Email, claims.Role)
+	if err != nil {
+		return nil, err
+	}
+	return tokens, nil
 }

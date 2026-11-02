@@ -81,3 +81,33 @@ func (s *TokenStore) RevokeRefreshToken(ctx context.Context, tokenID string, ttl
 	}
 	return nil
 }
+
+// RevokeAllUserTokens revokes all user tokens
+// TODO Optimizar para modelos grandes
+func (s *TokenStore) RevokeAllUserTokens(ctx context.Context, userID string, ttl time.Duration) error {
+	var cursor uint64
+	pattern := "refresh:*"
+	for {
+		keys, nextCursor, err := s.redis.Scan(ctx, cursor, pattern, 100).Result()
+		if err != nil {
+			return fmt.Errorf("buscando tokens de usuarios: %w", err)
+		}
+
+		for _, key := range keys {
+			storedUserID, err := s.redis.Get(ctx, key).Result()
+			if err != nil {
+				continue
+			}
+			if storedUserID == userID {
+				tokenID := key[len("refresh:"):]
+				_ = s.RevokeRefreshToken(ctx, tokenID, ttl)
+			}
+		}
+		cursor = nextCursor
+		if cursor == 0 {
+			break
+		}
+		return nil
+	}
+	return nil
+}

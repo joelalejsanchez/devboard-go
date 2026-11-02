@@ -71,8 +71,8 @@ func toTokenResponse(tokens *usecases.AuthTokens) tokenResponse {
 // @Produce     json
 // @Param       request body     registerRequest true "Datos de registro"
 // @Success     201     {object} tokenResponse
-// @Failure     400     {object} ProblemDetails
-// @Failure     409     {object} ProblemDetails
+// @Failure     400     {object} utils.ProblemDetails
+// @Failure     409     {object} utils.ProblemDetails
 // @Router      /auth/register [post]
 func (h *AuthHandler) Register(w http.ResponseWriter, r *http.Request) {
 	var req registerRequest
@@ -115,7 +115,7 @@ func (h *AuthHandler) Register(w http.ResponseWriter, r *http.Request) {
 // @Produce     json
 // @Param       request body     loginRequest true "Credenciales"
 // @Success     200     {object} tokenResponse
-// @Failure     401     {object} ProblemDetails
+// @Failure     401     {object} utils.ProblemDetails
 // @Router      /auth/login [post]
 func (h *AuthHandler) Login(w http.ResponseWriter, r *http.Request) {
 	var req loginRequest
@@ -158,7 +158,7 @@ func (h *AuthHandler) Login(w http.ResponseWriter, r *http.Request) {
 // @Produce     json
 // @Param       request body     refreshRequest true "Refresh token"
 // @Success     200     {object} tokenResponse
-// @Failure     401     {object} ProblemDetails
+// @Failure     401     {object} utils.ProblemDetails
 // @Router      /auth/refresh [post]
 func (h *AuthHandler) Refresh(w http.ResponseWriter, r *http.Request) {
 	var req refreshRequest

@@ -138,6 +138,51 @@ definitions:
       message:
         type: string
     type: object
+  loginRequest:
+    properties:
+      email:
+        type: string
+      password:
+        type: string
+    required:
+    - email
+    - password
+    type: object
+  refreshRequest:
+    properties:
+      refresh_token:
+        type: string
+    required:
+    - refresh_token
+    type: object
+  registerRequest:
+    properties:
+      email:
+        type: string
+      name:
+        maxLength: 100
+        minLength: 3
+        type: string
+      password:
+        maxLength: 72
+        minLength: 8
+        type: string
+    required:
+    - email
+    - name
+    - password
+    type: object
+  tokenResponse:
+    properties:
+      access_token:
+        type: string
+      expires_in:
+        type: integer
+      refresh_token:
+        type: string
+      token_type:
+        type: string
+    type: object
 host: localhost:8000
 info:
   contact:
@@ -146,6 +191,108 @@ info:
   title: DEVBOARD API
   version: "0.1"
 paths:
+  /auth/login:
+    post:
+      consumes:
+      - application/json
+      description: Verifica credenciales y retorna tokens de acceso
+      parameters:
+      - description: Credenciales
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/loginRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/tokenResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/ProblemDetails'
+      summary: Iniciar sesión
+      tags:
+      - auth
+  /auth/logout:
+    post:
+      consumes:
+      - application/json
+      description: Revoca el refresh token del usuario
+      parameters:
+      - description: Refresh token a revocar
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/refreshRequest'
+      produces:
+      - application/json
+      responses:
+        "204":
+          description: Sin contenido
+      summary: Cerrar sesión
+      tags:
+      - auth
+  /auth/refresh:
+    post:
+      consumes:
+      - application/json
+      description: Renueva el par de tokens usando un refresh token válido
+      parameters:
+      - description: Refresh token
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/refreshRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/tokenResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/ProblemDetails'
+      summary: Renovar tokens
+      tags:
+      - auth
+  /auth/register:
+    post:
+      consumes:
+      - application/json
+      description: Crea un nuevo usuario y retorna tokens de acceso
+      parameters:
+      - description: Datos de registro
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/registerRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/tokenResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/ProblemDetails'
+        "409":
+          description: Conflict
+          schema:
+            $ref: '#/definitions/ProblemDetails'
+      summary: Registrar usuario
+      tags:
+      - auth
   /health:
     get:
       description: Reports whether the server is running and responding.
@@ -233,17 +380,17 @@ paths:
     put:
       description: Assigns a task to a user.
       parameters:
+      - description: Task ID
+        in: path
+        name: id
+        required: true
+        type: string
       - description: Assignee data
         in: body
         name: request
         required: true
         schema:
           $ref: '#/definitions/AssignTaskRequest'
-      - description: Task ID
-        in: path
-        name: id
-        required: true
-        type: string
       produces:
       - application/json
       responses:
@@ -262,17 +409,17 @@ paths:
     put:
       description: Changes the status of a task.
       parameters:
+      - description: Task ID
+        in: path
+        name: id
+        required: true
+        type: string
       - description: Task status
         in: body
         name: request
         required: true
         schema:
           $ref: '#/definitions/UpdateStatusRequest'
-      - description: Task ID
-        in: path
-        name: id
-        required: true
-        type: string
       produces:
       - application/json
       responses:

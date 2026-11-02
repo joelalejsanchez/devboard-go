@@ -31,7 +31,7 @@ func toDomainUser(u generated.User) *domain.User {
 		ID:           u.ID.String(),
 		Name:         u.Name,
 		Email:        u.Email,
-		PasswordHash: u.Email,
+		PasswordHash: u.PasswordHash,
 		CreatedAt:    u.CreatedAt.Time,
 		UpdatedAt:    u.UpdatedAt.Time,
 	}

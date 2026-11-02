@@ -58,6 +58,7 @@ func toUserResponse(user *domain.User) userResponse {
 // @Param request body createUserRequest true "User data"
 // @Success 201 {object} UserResponse
 // @Failure 400 {object} utils.ProblemDetails
+// @Security BearerAuth
 // @Router /users [post]
 func (h *UserHandler) Create(w http.ResponseWriter, r *http.Request) {
 	var req createUserRequest
@@ -102,6 +103,7 @@ func (h *UserHandler) Create(w http.ResponseWriter, r *http.Request) {
 // @Param id path string true "User ID"
 // @Success 200 {object} UserResponse
 // @Failure 400 {object} utils.ProblemDetails
+// @Security BearerAuth
 // @Router /users/{id} [get]
 func (h *UserHandler) Get(w http.ResponseWriter, r *http.Request) {
 	id := r.PathValue("id")
@@ -128,6 +130,7 @@ func (h *UserHandler) Get(w http.ResponseWriter, r *http.Request) {
 // @Produce json
 // @Success 200 {object} utils.PaginatedResponse[userResponse]
 // @Failure 404 {object} utils.ProblemDetails
+// @Security BearerAuth
 // @Router /users [get]
 func (h *UserHandler) ListAll(w http.ResponseWriter, r *http.Request) {
 	users, err := h.usecase.ListUsers(r.Context())

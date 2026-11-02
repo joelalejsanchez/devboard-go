@@ -196,6 +196,11 @@ const docTemplate = `{
         },
         "/projects/{id}/tasks": {
             "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
                 "description": "Returns the tasks that belong to a project.",
                 "produces": [
                     "application/json"
@@ -231,6 +236,11 @@ const docTemplate = `{
         },
         "/tasks": {
             "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
                 "description": "Creates a task.",
                 "produces": [
                     "application/json"
@@ -268,6 +278,11 @@ const docTemplate = `{
         },
         "/tasks/{id}": {
             "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
                 "description": "Returns a task by its ID.",
                 "produces": [
                     "application/json"
@@ -303,6 +318,11 @@ const docTemplate = `{
         },
         "/tasks/{id}/assign": {
             "put": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
                 "description": "Assigns a task to a user.",
                 "produces": [
                     "application/json"
@@ -347,6 +367,11 @@ const docTemplate = `{
         },
         "/tasks/{id}/status": {
             "put": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
                 "description": "Changes the status of a task.",
                 "produces": [
                     "application/json"
@@ -391,6 +416,11 @@ const docTemplate = `{
         },
         "/users": {
             "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
                 "description": "Returns the all users from the system.",
                 "produces": [
                     "application/json"
@@ -415,6 +445,11 @@ const docTemplate = `{
                 }
             },
             "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
                 "description": "Creates a user.",
                 "produces": [
                     "application/json"
@@ -452,6 +487,11 @@ const docTemplate = `{
         },
         "/users/{id}": {
             "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
                 "description": "Returns a user by ID.",
                 "produces": [
                     "application/json"
@@ -758,6 +798,14 @@ const docTemplate = `{
                     "type": "string"
                 }
             }
+        }
+    },
+    "securityDefinitions": {
+        "BearerAuth": {
+            "description": "Escribe el token con el formato: Bearer {token}",
+            "type": "apiKey",
+            "name": "Authorization",
+            "in": "header"
         }
     }
 }`

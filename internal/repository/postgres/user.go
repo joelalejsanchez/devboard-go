@@ -89,3 +89,18 @@ func (r *UserRepository) GetByEmail(ctx context.Context, email string) (*domain.
 
 	return toDomainUser(result), nil
 }
+
+// ListAll returns all users
+func (r *UserRepository) ListAll(ctx context.Context) ([]*domain.User, error) {
+	users, err := r.queries.ListUsers(ctx)
+	if err != nil {
+		return nil, fmt.Errorf("buscando usuarios: %w", err)
+	}
+
+	result := make([]*domain.User, len(users))
+
+	for i, user := range users {
+		result[i] = toDomainUser(user)
+	}
+	return result, nil
+}

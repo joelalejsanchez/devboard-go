@@ -56,6 +56,17 @@ definitions:
       next_cursor:
         type: string
     type: object
+  PaginatedResponse-UserResponse:
+    properties:
+      data:
+        items:
+          $ref: '#/definitions/UserResponse'
+        type: array
+      has_more:
+        type: boolean
+      next_cursor:
+        type: string
+    type: object
   ProblemDetails:
     properties:
       detail:
@@ -277,6 +288,22 @@ paths:
       tags:
       - tasks
   /users:
+    get:
+      description: Returns the all users from the system.
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/PaginatedResponse-UserResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/ProblemDetails'
+      summary: Get Users from system
+      tags:
+      - users
     post:
       description: Creates a user.
       parameters:

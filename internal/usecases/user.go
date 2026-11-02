@@ -13,6 +13,7 @@ type UserRepository interface {
 	Create(ctx context.Context, user *domain.User) error
 	GetByID(ctx context.Context, id string) (*domain.User, error)
 	GetByEmail(ctx context.Context, email string) (*domain.User, error)
+	ListAll(ctx context.Context) ([]*domain.User, error)
 }
 
 // UserUseCase coordinates user-related business workflows.
@@ -49,6 +50,15 @@ func (uc *UserUseCase) GetUser(ctx context.Context, id string) (*domain.User, er
 		return nil, fmt.Errorf("obteniendo usuario %s: %w", id, err)
 	}
 	return user, nil
+}
+
+// ListUsers return all users
+func (uc *UserUseCase) ListUsers(ctx context.Context) ([]*domain.User, error) {
+	users, err := uc.repo.ListAll(ctx)
+	if err != nil {
+		return nil, fmt.Errorf("obteniendo usuarios: %w", err)
+	}
+	return users, nil
 }
 
 // NewUserUseCase creates a user use case with its repository.

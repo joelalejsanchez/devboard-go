@@ -30,7 +30,7 @@ func NewTaskHandler(uc *usecases.TaskUseCase, v *validator.Validator, l *slog.Lo
 
 // createTaskRequest contains the fields required to create a task.
 type createTaskRequest struct {
-	ProjectID   string `json:"project_id" validate:"required"`
+	ProjectID   string `json:"project_id" validate:"required,uuid"`
 	Title       string `json:"title" validate:"required,min=3,max=200"`
 	Description string `json:"description" validate:"max=2000"`
 } // @name CreateTaskRequest
@@ -82,11 +82,13 @@ func (h *TaskHandler) Create(w http.ResponseWriter, r *http.Request) {
 		if err := utils.RespondValidationError(w, errs); err != nil {
 			h.logger.ErrorContext(r.Context(), "error al escribir respuesta de error de validacion")
 		}
+		return
 	}
 
-	task, err := h.usecase.CreateTask(r.Context(), req.ProjectID, req.Title, req.Description, "system")
+	task, err := h.usecase.CreateTask(r.Context(), req.ProjectID, req.Title, req.Description, "bd22eec7-4af8-4773-b2e7-af56b8ddbe82")
 	if err != nil {
 		utils.RespondError(w, r, h.logger, err)
+		return
 	}
 
 	if err := utils.RespondJSON(w, http.StatusCreated, toTaskResponse(task)); err != nil {
@@ -147,7 +149,7 @@ func (h *TaskHandler) ListByProject(w http.ResponseWriter, r *http.Request) {
 }
 
 type assignTaskRequest struct {
-	AssigneeID string `json:"assignee_id" validate:"required,uuid7"`
+	AssigneeID string `json:"assignee_id" validate:"required,uuid"`
 } // @name AssignTaskRequest
 
 // Assign assigns a task to a user.

@@ -39,6 +39,15 @@ type userResponse struct {
 	Name  string `json:"name"`
 } // @name UserResponse
 
+// toUserResponse converts a domain user into its API response representation.
+func toUserResponse(user *domain.User) userResponse {
+	return userResponse{
+		ID:    user.ID,
+		Email: user.Email,
+		Name:  user.Name,
+	}
+}
+
 // Create creates a user.
 // @Summary Create User
 // @Description Creates a user.
@@ -102,6 +111,34 @@ func (h *UserHandler) Get(w http.ResponseWriter, r *http.Request) {
 		ID:    user.ID,
 		Email: user.Email,
 		Name:  user.Name,
+	}); err != nil {
+		h.logger.ErrorContext(r.Context(), "error al enviar respuesta")
+	}
+}
+
+// ListAll returns all the users .
+// @Summary Get Users from system
+// @Description Returns the all users from the system.
+// @Tags users
+// @Produce json
+// @Success 200 {object} utils.PaginatedResponse[userResponse]
+// @Failure 404 {object} utils.ProblemDetails
+// @Router /users [get]
+func (h *UserHandler) ListAll(w http.ResponseWriter, r *http.Request) {
+	users, err := h.usecase.ListUsers(r.Context())
+	if err != nil {
+		utils.RespondError(w, r, h.logger, err)
+		return
+	}
+
+	response := make([]userResponse, len(users))
+	for i, user := range users {
+		response[i] = toUserResponse(user)
+	}
+
+	if err := utils.RespondJSON(w, http.StatusOK, utils.PaginatedResponse[userResponse]{
+		Data:    response,
+		HasMore: false,
 	}); err != nil {
 		h.logger.ErrorContext(r.Context(), "error al enviar respuesta")
 	}

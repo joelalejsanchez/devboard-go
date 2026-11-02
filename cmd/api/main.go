@@ -103,6 +103,7 @@ func main() {
 	 */
 	svr.RegisterRoute("GET  /api/v1/docs/", httpSwagger.WrapHandler)
 	svr.RegisterRoute("GET  /api/v1/health", &handlers.HealthHandler{})
+	svr.RegisterRoute("GET /api/v1/users", http.HandlerFunc(userHandler.ListAll))
 	svr.RegisterRoute("POST /api/v1/users", http.HandlerFunc(userHandler.Create))
 	svr.RegisterRoute("GET  /api/v1/users/{id}", http.HandlerFunc(userHandler.Get))
 	svr.RegisterRoute("POST /api/v1/tasks", http.HandlerFunc(taskHandler.Create))

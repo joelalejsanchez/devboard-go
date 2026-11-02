@@ -2,6 +2,7 @@
 package handlers
 
 import (
+	"devboard/internal/auth"
 	"devboard/internal/domain"
 	"devboard/internal/handlers/utils"
 	"devboard/internal/usecases"
@@ -71,8 +72,12 @@ func (h *UserHandler) Create(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// TODO ImplementarHasshing
-	passwordHash := "TEMP_" + req.Password
+	passwordHash, err := auth.HashPassword(req.Password)
+	if err != nil {
+		utils.RespondError(w, r, h.logger, domain.ErrInternal)
+		return
+	}
+
 	user, err := h.usecase.CreateUser(r.Context(), req.Email, req.Name, passwordHash)
 	if err != nil {
 		utils.RespondError(w, r, h.logger, err)

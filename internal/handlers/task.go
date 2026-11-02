@@ -4,6 +4,7 @@ package handlers
 import (
 	"devboard/internal/domain"
 	"devboard/internal/handlers/utils"
+	"devboard/internal/middlewares"
 	"devboard/internal/usecases"
 	"devboard/internal/validator"
 	"encoding/json"
@@ -85,7 +86,13 @@ func (h *TaskHandler) Create(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	task, err := h.usecase.CreateTask(r.Context(), req.ProjectID, req.Title, req.Description, "bd22eec7-4af8-4773-b2e7-af56b8ddbe82")
+	userID := middlewares.GetUserID(r)
+	if userID == "" {
+		utils.RespondError(w, r, h.logger, domain.ErrUnauthorized)
+		return
+	}
+
+	task, err := h.usecase.CreateTask(r.Context(), req.ProjectID, req.Title, req.Description, userID)
 	if err != nil {
 		utils.RespondError(w, r, h.logger, err)
 		return

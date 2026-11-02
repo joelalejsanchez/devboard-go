@@ -3,6 +3,7 @@ package auth
 
 import (
 	"crypto/rand"
+	"crypto/subtle"
 	"encoding/base64"
 	"errors"
 	"fmt"
@@ -14,23 +15,23 @@ import (
 // ErrInvalidPasswordHash indica que el hash almacenado tiene el formato incorrecto
 var ErrInvalidPasswordHash = errors.New("formato de hash invalido")
 
-// ErrPasswordMismatch indica que el password no coincide con el hash
-var ErrPasswordMismatch = errors.New("password incorrecto")
+// ErrPasswordMissmatch indica que el password no coincide con el hash
+var ErrPasswordMissmatch = errors.New("password incorrecto")
 
 type argon2Params struct {
-	memory       uint32 // en KBs - 64MBs recomendados
-	iterations   uint32 //
-	parallelisms uint8
-	saltLength   uint32 // bytes
-	keyLength    uint32 // bytes
+	memory      uint32 // en KBs - 64MBs recomendados
+	iterations  uint32 //
+	parallelism uint8
+	saltLength  uint32 // bytes
+	keyLength   uint32 // bytes
 }
 
 var defaultArgon2Params = argon2Params{
-	memory:       64 * 1024,
-	iterations:   3,
-	parallelisms: 2,
-	saltLength:   16, // bytes
-	keyLength:    32, // bytes
+	memory:      64 * 1024,
+	iterations:  3,
+	parallelism: 2,
+	saltLength:  16, // bytes
+	keyLength:   32, // bytes
 }
 
 // HashPassword returns a secure hash
@@ -45,7 +46,7 @@ func HashPassword(password string) (string, error) {
 		salt,
 		defaultArgon2Params.iterations,
 		defaultArgon2Params.memory,
-		defaultArgon2Params.parallelisms,
+		defaultArgon2Params.parallelism,
 		defaultArgon2Params.keyLength,
 	)
 
@@ -57,12 +58,33 @@ func HashPassword(password string) (string, error) {
 		argon2.Version,
 		defaultArgon2Params.memory,
 		defaultArgon2Params.iterations,
-		defaultArgon2Params.parallelisms,
+		defaultArgon2Params.parallelism,
 		b64Salt,
 		b64Hash,
 	)
 
 	return encoded, nil
+}
+
+func VerifyPassword(password, encodedHash string) error {
+	params, salt, hash, err := parseHash(encodedHash)
+	if err != nil {
+		return fmt.Errorf("parseando hash: %w", err)
+	}
+
+	otherHash := argon2.IDKey(
+		[]byte(password),
+		salt,
+		params.iterations,
+		params.memory,
+		params.parallelism,
+		params.keyLength,
+	)
+
+	if subtle.ConstantTimeCompare(hash, otherHash) != 1 {
+		return ErrPasswordMissmatch
+	}
+	return nil
 }
 
 // parseHash extracts parms and values from hash
@@ -90,7 +112,7 @@ func parseHash(encodedHash string) (*argon2Params, []byte, []byte, error) {
 		"m=%d,t%d,p=%d",
 		&params.memory,
 		&params.iterations,
-		&params.parallelisms,
+		&params.parallelism,
 	); err != nil {
 		return nil, nil, nil, ErrInvalidPasswordHash
 	}

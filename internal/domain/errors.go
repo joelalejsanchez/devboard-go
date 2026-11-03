@@ -1,3 +1,4 @@
+// Package domain defines the core domain types and business rules.
 package domain
 
 import "errors"

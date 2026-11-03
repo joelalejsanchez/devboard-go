@@ -1,0 +1,2 @@
+ALTER TABLE tasks
+    DROP CONSTRAINT IF EXISTS fk_tasks_project_id;
